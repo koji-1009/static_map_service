@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:static_map_service/src/service.dart';
 import 'package:static_map_service/src/shared.dart';
 
@@ -205,7 +206,7 @@ class AppleMapSize {
 /// The annotation to display on the map
 ///
 /// see [https://developer.apple.com/documentation/snapshots/annotation]
-class AppleMapAnnotation {
+class AppleMapAnnotation with EquatableMixin {
   const AppleMapAnnotation({
     this.markerStyle = AppleMapAnnotationStyle.balloon,
     required this.point,
@@ -279,6 +280,18 @@ class AppleMapAnnotation {
     builder.write('}');
     return builder.toString();
   }
+
+  @override
+  List<Object?> get props => [
+        markerStyle,
+        point,
+        color,
+        glyphColor,
+        glyphImgIdx,
+        glyphText,
+        imgIdx,
+        offset,
+      ];
 }
 
 /// The style of the annotation
@@ -290,12 +303,15 @@ enum AppleMapAnnotationStyle {
 }
 
 /// Support HTML color names and hex color codes
-class AppleMapAnnotationColor {
+class AppleMapAnnotationColor with EquatableMixin {
   const AppleMapAnnotationColor({
     required this.color,
   });
 
   final String color;
+
+  @override
+  List<Object?> get props => [color];
 }
 
 /// An optional offset in scale independent pixels of the image from the bottom center

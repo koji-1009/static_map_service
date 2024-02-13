@@ -1,5 +1,7 @@
+import 'package:equatable/equatable.dart';
+
 /// The base class for map location
-sealed class MapLocation {
+sealed class MapLocation with EquatableMixin {
   const MapLocation();
 
   String get query;
@@ -30,16 +32,7 @@ class MapLatLng extends MapLocation {
   String get query => '${_lat.toStringAsFixed(4)},${_lng.toStringAsFixed(4)}';
 
   @override
-  int get hashCode => Object.hash(runtimeType, _lat, _lng);
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is MapLatLng &&
-            (identical(other._lat, _lat) || other._lat == _lat) &&
-            (identical(other._lng, _lng) || other._lng == _lng));
-  }
+  List<Object?> get props => [_lat, _lng];
 }
 
 /// The address of the map location
@@ -54,15 +47,7 @@ class MapAddress extends MapLocation {
   String get query => address;
 
   @override
-  int get hashCode => Object.hash(runtimeType, address);
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is MapAddress &&
-            (identical(other.address, address) || other.address == address));
-  }
+  List<Object?> get props => [address];
 }
 
 /// Create digital signature function

@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:static_map_service/static_map_service.dart';
 
 /// Google Maps Static API entity
@@ -147,7 +148,7 @@ final class GoogleMapService extends MapService {
         if (region != null) 'region': region!,
         if (mapId != null) 'map_id': mapId!,
         if (_markers.isNotEmpty)
-          for (final marker in _markers) 'makers': marker.query,
+          for (final marker in _markers) 'markers': marker.query,
         if (_path.isNotEmpty) 'path': _path.query,
         if (_viewports.isNotEmpty) 'visible': _viewports.query,
         'key': key,
@@ -178,7 +179,7 @@ final class GoogleMapService extends MapService {
       if (region != null) 'region': region!,
       if (mapId != null) 'map_id': mapId!,
       if (_markers.isNotEmpty)
-        for (final marker in _markers) 'makers': marker.query,
+        for (final marker in _markers) 'markers': marker.query,
       if (_path.isNotEmpty) 'path': _path.query,
       if (_viewports.isNotEmpty) 'visible': _viewports.query,
       'key': key,
@@ -224,25 +225,16 @@ class GoogleMapSize {
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#Largerimagesizes]
-class GoogleLargeMapSize implements GoogleMapSize {
+class GoogleLargeMapSize extends GoogleMapSize {
   const GoogleLargeMapSize({
-    required this.width,
-    required this.height,
+    required super.width,
+    required super.height,
   })  : assert(width > 0 && width <= 2048),
         assert(height > 0 && height <= 2048);
-
-  @override
-  final int width;
-
-  @override
-  final int height;
-
-  @override
-  String get query => '${width}x$height';
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#Markers]
-class GoogleMapMarkers {
+class GoogleMapMarkers with EquatableMixin {
   const GoogleMapMarkers({
     required this.locations,
     this.size,
@@ -264,6 +256,9 @@ class GoogleMapMarkers {
         if (label != null) 'label:$label',
         ...locations.map((e) => e.query),
       ].join('|');
+
+  @override
+  List<Object?> get props => [locations, size, color, label];
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#Paths]
@@ -321,10 +316,13 @@ class GoogleMapViewports {
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#MarkerStyles]
 /// see [https://developers.google.com/maps/documentation/maps-static/start#PathStyles]
-sealed class GoogleMapColor {
+sealed class GoogleMapColor with EquatableMixin {
   const GoogleMapColor();
 
   String get name;
+
+  @override
+  List<Object?> get props => [name];
 }
 
 class GoogleMapColorHex extends GoogleMapColor {
