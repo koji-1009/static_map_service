@@ -1,6 +1,6 @@
 name: static_map_service
-description: A starting point for Dart libraries or applications.
-version: 1.0.0
+description: A Dart package for generating static map images url from Google Maps, Apple Snapshots.
+version: 0.0.1
 homepage: https://github.com/koji-1009/static_map_service
 
 environment:
