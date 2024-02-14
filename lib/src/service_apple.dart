@@ -107,7 +107,7 @@ final class AppleMapService extends MapService {
         'keyId': keyId,
         if (zoom != 12) 'zoom': '$zoom',
         if (span != null) 'span': span!.query,
-        'size': size.query,
+        if (size != AppleMapSize.auto()) 'size': size.query,
         if (scale != 1) 'scale': '$scale',
         if (colorScheme != AppleMapColorScheme.light)
           'colorScheme': colorScheme.name,
@@ -140,7 +140,7 @@ final class AppleMapService extends MapService {
       'keyId': keyId,
       if (zoom != 12) 'zoom': '$zoom',
       if (span != null) 'span': span!.query,
-      'size': size.query,
+      if (size != AppleMapSize.auto()) 'size': size.query,
       if (scale != 1) 'scale': '$scale',
       if (colorScheme != AppleMapColorScheme.light)
         'colorScheme': colorScheme.name,
