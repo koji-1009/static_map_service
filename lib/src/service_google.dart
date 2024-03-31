@@ -1,4 +1,5 @@
-import 'package:static_map_service/static_map_service.dart';
+import 'package:static_map_service/src/service.dart';
+import 'package:static_map_service/src/shared.dart';
 
 /// Google Maps Static API entity
 ///
