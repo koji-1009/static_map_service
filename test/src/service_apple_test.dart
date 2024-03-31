@@ -6,7 +6,7 @@ void main() {
   group('A group of center', () {
     const teamId = 'team_id';
     const keyId = 'key_id';
-    const tokyoStation = MapLatLng(
+    final tokyoStation = MapLatLng(
       latitude: 35.6812,
       longitude: 139.7671,
     );

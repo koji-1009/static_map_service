@@ -5,7 +5,7 @@ void main() {
   group('A group of MapLatLng', () {
     test('success case', () {
       expect(
-        const MapLatLng(
+        MapLatLng(
           latitude: 35.6812,
           longitude: 139.7671,
         ).query,
@@ -51,7 +51,7 @@ void main() {
   group('A group of MapAddress', () {
     test('success case', () {
       expect(
-        const MapAddress(
+        MapAddress(
           address: 'Tokyo Station',
         ).query,
         'Tokyo Station',
