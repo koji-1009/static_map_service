@@ -5,18 +5,18 @@ import 'package:test/test.dart';
 void main() {
   const key = 'static_map_service_key';
   const zoom = 10;
-  const mapSize = GoogleMapSize(
+  final mapSize = GoogleMapSize(
     width: 400,
     height: 400,
   );
-  const tokyoStationLatLng = MapLatLng(
+  final tokyoStationLatLng = MapLatLng(
     latitude: 35.6812,
     longitude: 139.7671,
   );
 
   group('A group of center', () {
     test('required parameters', () {
-      const service = GoogleMapService.center(
+      final service = GoogleMapService.center(
         key: key,
         center: tokyoStationLatLng,
         zoom: zoom,
@@ -30,7 +30,7 @@ void main() {
     });
 
     test('path_and_params', () {
-      const service = GoogleMapService.center(
+      final service = GoogleMapService.center(
         key: key,
         center: tokyoStationLatLng,
         zoom: zoom,

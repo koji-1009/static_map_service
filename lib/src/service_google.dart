@@ -1,4 +1,3 @@
-import 'package:equatable/equatable.dart';
 import 'package:static_map_service/static_map_service.dart';
 
 /// Google Maps Static API entity
@@ -23,8 +22,8 @@ final class GoogleMapService extends MapService {
   })  : _center = center,
         _zoom = zoom,
         _markers = markers ?? const {},
-        _path = path ?? const GoogleMapPath._empty(),
-        _viewports = viewports ?? const GoogleMapViewports._empty(),
+        _path = path ?? GoogleMapPath._empty,
+        _viewports = viewports ?? GoogleMapViewports._empty,
         assert(zoom >= 0 && zoom <= 21),
         assert(scale == 1 || scale == 2);
 
@@ -46,8 +45,8 @@ final class GoogleMapService extends MapService {
   })  : _markers = markers,
         _center = center,
         _zoom = zoom,
-        _path = path ?? const GoogleMapPath._empty(),
-        _viewports = viewports ?? const GoogleMapViewports._empty(),
+        _path = path ?? GoogleMapPath._empty,
+        _viewports = viewports ?? GoogleMapViewports._empty,
         assert(zoom == null || (zoom >= 0 && zoom <= 21)),
         assert(scale == 1 || scale == 2);
 
@@ -70,7 +69,7 @@ final class GoogleMapService extends MapService {
         _markers = markers ?? const {},
         _center = center,
         _zoom = zoom,
-        _viewports = viewports ?? const GoogleMapViewports._empty(),
+        _viewports = viewports ?? GoogleMapViewports._empty,
         assert(zoom == null || (zoom >= 0 && zoom <= 21)),
         assert(scale == 1 || scale == 2);
 
@@ -138,7 +137,7 @@ final class GoogleMapService extends MapService {
     final uri = Uri(
       path: unencodedPath,
       queryParameters: {
-        if (_center != null) 'center': _center!.query,
+        if (_center != null) 'center': _center.query,
         if (_zoom != null) 'zoom': '$_zoom',
         'size': size.query,
         if (scale != 1) 'scale': '$scale',
@@ -169,7 +168,7 @@ final class GoogleMapService extends MapService {
     final signature = signatureFunction?.call(pathAndParams) ?? '';
 
     return {
-      if (_center != null) 'center': _center!.query,
+      if (_center != null) 'center': _center.query,
       if (_zoom != null) 'zoom': '$_zoom',
       'size': size.query,
       if (scale != 1) 'scale': '$scale',
@@ -209,199 +208,108 @@ enum GoogleMapType {
   terrain,
 }
 
-/// see [https://developers.google.com/maps/documentation/maps-static/start#Imagesizes]
-class GoogleMapSize {
-  const GoogleMapSize({
-    required this.width,
-    required this.height,
-  })  : assert(width > 0 && width <= 640),
-        assert(height > 0 && height <= 640);
+extension type GoogleMapSize._(String query) {
+  /// see [https://developers.google.com/maps/documentation/maps-static/start#Imagesizes]
+  factory GoogleMapSize({
+    required int width,
+    required int height,
+  }) {
+    assert(width > 0 && width <= 640);
+    assert(height > 0 && height <= 640);
 
-  final int width;
+    return GoogleMapSize._('${width}x$height');
+  }
 
-  final int height;
+  /// see [https://developers.google.com/maps/documentation/maps-static/start#Largerimagesizes]
+  factory GoogleMapSize.large({
+    required int width,
+    required int height,
+  }) {
+    assert(width > 0 && width <= 2048);
+    assert(height > 0 && height <= 2048);
 
-  String get query => '${width}x$height';
-}
-
-/// see [https://developers.google.com/maps/documentation/maps-static/start#Largerimagesizes]
-class GoogleLargeMapSize extends GoogleMapSize {
-  const GoogleLargeMapSize({
-    required super.width,
-    required super.height,
-  })  : assert(width > 0 && width <= 2048),
-        assert(height > 0 && height <= 2048);
+    return GoogleMapSize._('${width}x$height');
+  }
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#Markers]
-class GoogleMapMarkers with EquatableMixin {
-  const GoogleMapMarkers({
-    required this.locations,
-    this.size,
-    this.color,
-    this.label,
-  });
-
-  final Set<MapLocation> locations;
-
-  final GoogleMapMarkerSize? size;
-
-  final GoogleMapColor? color;
-
-  final String? label;
-
-  String get query => <String>[
-        if (size != null) 'size:${size?.name}',
+extension type GoogleMapMarkers._(String query) {
+  factory GoogleMapMarkers({
+    required Set<MapLocation> locations,
+    GoogleMapMarkerSize? size,
+    GoogleMapColor? color,
+    String? label,
+  }) =>
+      GoogleMapMarkers._([
+        if (size != null) 'size:${size.name}',
         if (color != null) 'color:${color?.name}',
         if (label != null) 'label:$label',
         ...locations.map((e) => e.query),
-      ].join('|');
-
-  @override
-  List<Object?> get props => [locations, size, color, label];
+      ].join('|'));
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#Paths]
-class GoogleMapPath {
-  const GoogleMapPath({
-    required this.locations,
-    this.weight,
-    this.color,
-    this.fillColor,
-    this.geodesic = false,
-  });
+extension type GoogleMapPath._(String query) {
+  factory GoogleMapPath({
+    required List<MapLocation> locations,
+    int? weight,
+    GoogleMapColor? color,
+    GoogleMapColor? fillColor,
+    bool geodesic = false,
+  }) =>
+      GoogleMapPath._(
+        [
+          if (weight != null) 'weight:$weight',
+          if (color != null) 'color:${color?.name}',
+          if (fillColor != null) 'fillcolor:${fillColor?.name}',
+          if (geodesic) 'geodesic:true',
+          ...locations.map((e) => e.query),
+        ].join('|'),
+      );
 
-  const GoogleMapPath._empty()
-      : locations = const [],
-        weight = null,
-        color = null,
-        fillColor = null,
-        geodesic = false;
+  static const _empty = '' as GoogleMapPath;
 
-  final List<MapLocation> locations;
-
-  final int? weight;
-
-  final GoogleMapColor? color;
-
-  final GoogleMapColor? fillColor;
-
-  final bool geodesic;
-
-  bool get isNotEmpty => locations.isNotEmpty;
-
-  String get query => <String>[
-        if (weight != null) 'weight:$weight',
-        if (color != null) 'color:${color?.name}',
-        if (fillColor != null) 'fillcolor:${fillColor?.name}',
-        if (geodesic) 'geodesic:true',
-        ...locations.map((e) => e.query),
-      ].join('|');
+  bool get isNotEmpty => query.isNotEmpty;
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#Viewports]
-class GoogleMapViewports {
-  const GoogleMapViewports({
-    required this.locations,
-  });
+extension type GoogleMapViewports._(String query) {
+  factory GoogleMapViewports({
+    Set<MapLocation> locations = const {},
+  }) =>
+      GoogleMapViewports._(
+        locations.map((e) => e.query).join('|'),
+      );
 
-  const GoogleMapViewports._empty() : locations = const {};
+  static const _empty = '' as GoogleMapViewports;
 
-  final Set<MapLocation> locations;
-
-  bool get isNotEmpty => locations.isNotEmpty;
-
-  String get query => locations.map((e) => e.query).join('|');
+  bool get isNotEmpty => query.isNotEmpty;
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#MarkerStyles]
 /// see [https://developers.google.com/maps/documentation/maps-static/start#PathStyles]
-sealed class GoogleMapColor with EquatableMixin {
-  const GoogleMapColor();
+extension type GoogleMapColor(String name) {
+  factory GoogleMapColor.hex(String hex) => GoogleMapColor('0x$hex');
 
-  String get name;
+  factory GoogleMapColor.black() => GoogleMapColor('black');
 
-  @override
-  List<Object?> get props => [name];
-}
+  factory GoogleMapColor.brown() => GoogleMapColor('brown');
 
-class GoogleMapColorHex extends GoogleMapColor {
-  const GoogleMapColorHex(this.hex);
+  factory GoogleMapColor.green() => GoogleMapColor('green');
 
-  final String hex;
+  factory GoogleMapColor.purple() => GoogleMapColor('purple');
 
-  @override
-  String get name => '0x$hex';
-}
+  factory GoogleMapColor.yellow() => GoogleMapColor('yellow');
 
-class GoogleMapColorBlack extends GoogleMapColor {
-  const GoogleMapColorBlack();
+  factory GoogleMapColor.blue() => GoogleMapColor('blue');
 
-  @override
-  String get name => 'black';
-}
+  factory GoogleMapColor.gray() => GoogleMapColor('gray');
 
-class GoogleMapColorBrown extends GoogleMapColor {
-  const GoogleMapColorBrown();
+  factory GoogleMapColor.orange() => GoogleMapColor('orange');
 
-  @override
-  String get name => 'brown';
-}
+  factory GoogleMapColor.red() => GoogleMapColor('red');
 
-class GoogleMapColorGreen extends GoogleMapColor {
-  const GoogleMapColorGreen();
-
-  @override
-  String get name => 'green';
-}
-
-class GoogleMapColorPurple extends GoogleMapColor {
-  const GoogleMapColorPurple();
-
-  @override
-  String get name => 'purple';
-}
-
-class GoogleMapColorYellow extends GoogleMapColor {
-  const GoogleMapColorYellow();
-
-  @override
-  String get name => 'yellow';
-}
-
-class GoogleMapColorBlue extends GoogleMapColor {
-  const GoogleMapColorBlue();
-
-  @override
-  String get name => 'blue';
-}
-
-class GoogleMapColorGray extends GoogleMapColor {
-  const GoogleMapColorGray();
-
-  @override
-  String get name => 'gray';
-}
-
-class GoogleMapColorOrange extends GoogleMapColor {
-  const GoogleMapColorOrange();
-
-  @override
-  String get name => 'orange';
-}
-
-class GoogleMapColorRed extends GoogleMapColor {
-  const GoogleMapColorRed();
-
-  @override
-  String get name => 'red';
-}
-
-class GoogleMapColorWhite extends GoogleMapColor {
-  const GoogleMapColorWhite();
-
-  @override
-  String get name => 'white';
+  factory GoogleMapColor.white() => GoogleMapColor('white');
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#MarkerStyles]

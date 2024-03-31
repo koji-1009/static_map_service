@@ -1,4 +1,3 @@
-import 'package:equatable/equatable.dart';
 import 'package:static_map_service/src/service.dart';
 import 'package:static_map_service/src/shared.dart';
 
@@ -16,7 +15,7 @@ final class AppleMapService extends MapService {
     required this.center,
     this.zoom = 12,
     this.span,
-    this.size = const AppleMapSize.auto(),
+    this.size = AppleMapSize.auto,
     this.scale = 1,
     this.mapType = AppleMapType.standard,
     this.colorScheme = AppleMapColorScheme.light,
@@ -34,7 +33,7 @@ final class AppleMapService extends MapService {
     required this.annotations,
     this.zoom = 12,
     this.span,
-    this.size = const AppleMapSize.auto(),
+    this.size = AppleMapSize.auto,
     this.scale = 1,
     this.mapType = AppleMapType.standard,
     this.colorScheme = AppleMapColorScheme.light,
@@ -42,9 +41,7 @@ final class AppleMapService extends MapService {
     this.lang = 'en-US',
     this.referer,
     this.expires,
-  }) : center = const MapAddress(
-          address: 'auto',
-        );
+  }) : center = 'auto' as MapAddress;
 
   /// Apple Developer Team ID
   final String teamId;
@@ -107,7 +104,7 @@ final class AppleMapService extends MapService {
         'keyId': keyId,
         if (zoom != 12) 'zoom': '$zoom',
         if (span != null) 'span': span!.query,
-        if (size != AppleMapSize.auto()) 'size': size.query,
+        if (size != AppleMapSize.auto) 'size': size.query,
         if (scale != 1) 'scale': '$scale',
         if (colorScheme != AppleMapColorScheme.light)
           'colorScheme': colorScheme.name,
@@ -140,7 +137,7 @@ final class AppleMapService extends MapService {
       'keyId': keyId,
       if (zoom != 12) 'zoom': '$zoom',
       if (span != null) 'span': span!.query,
-      if (size != AppleMapSize.auto()) 'size': size.query,
+      if (size != AppleMapSize.auto) 'size': size.query,
       if (scale != 1) 'scale': '$scale',
       if (colorScheme != AppleMapColorScheme.light)
         'colorScheme': colorScheme.name,
@@ -157,11 +154,6 @@ final class AppleMapService extends MapService {
   }
 }
 
-/// The location of the map
-const centerLocation = MapAddress(
-  address: 'center',
-);
-
 enum AppleMapColorScheme {
   light,
   dark,
@@ -173,88 +165,64 @@ enum AppleMapType {
   hybrid,
 }
 
-class AppleMapSize {
-  const AppleMapSize({
-    required this.width,
-    required this.height,
-  })  : assert(width >= 50 && width <= 640),
-        assert(height >= 50 && height <= 640);
+/// The location of the map
+const centerLocation = 'center' as MapAddress;
 
-  const AppleMapSize.auto()
-      : width = 600,
-        height = 400;
+extension type AppleMapSize._(String query) {
+  factory AppleMapSize({
+    required int width,
+    required int height,
+  }) {
+    assert(width >= 50 && width <= 640);
+    assert(height >= 50 && height <= 640);
 
-  final int width;
-
-  final int height;
-
-  String get query => '${width}x$height';
-
-  @override
-  int get hashCode => Object.hash(runtimeType, width, height);
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is AppleMapSize &&
-            identical(other.width, width) &&
-            identical(other.height, height));
+    return AppleMapSize._('$width,$height');
   }
+
+  static const auto = '600x400' as AppleMapSize;
 }
 
 /// The annotation to display on the map
 ///
 /// see [https://developer.apple.com/documentation/snapshots/annotation]
-class AppleMapAnnotation with EquatableMixin {
-  const AppleMapAnnotation({
-    this.markerStyle = AppleMapAnnotationStyle.balloon,
-    required this.point,
-    this.color,
-    this.glyphColor,
-    this.glyphImgIdx,
-    this.glyphText,
-    this.imgIdx,
-    this.offset,
-  });
+extension type AppleMapAnnotation._(String query) {
+  factory AppleMapAnnotation({
+    /// The style of the annotation
+    AppleMapAnnotationStyle markerStyle = AppleMapAnnotationStyle.balloon,
 
-  /// The style of the annotation
-  final AppleMapAnnotationStyle markerStyle;
+    /// The location of the annotation
+    required MapLocation point,
 
-  /// The location of the annotation
-  final MapLocation point;
+    /// The color of the annotation
+    AppleMapAnnotationColor? color,
 
-  /// The color of the annotation
-  final AppleMapAnnotationColor? color;
+    /// The tint color of the glyph
+    AppleMapAnnotationColor? glyphColor,
 
-  /// The tint color of the glyph
-  final AppleMapAnnotationColor? glyphColor;
+    /// The zero-based index of the glyph image referenced in the array of
+    /// images used for a specific annotation.
+    ///
+    /// Don’t set the [glyphText] property when using this property.
+    /// If the annotation has a “dot” or “img” [markerStyle],
+    /// the Maps Web Snapshots API ignores this parameter.
+    int? glyphImgIdx,
 
-  /// The zero-based index of the glyph image referenced in the array of
-  /// images used for a specific annotation.
-  ///
-  /// Don’t set the [glyphText] property when using this property.
-  /// If the annotation has a “dot” or “img” [markerStyle],
-  /// the Maps Web Snapshots API ignores this parameter.
-  final int? glyphImgIdx;
+    /// A single alphanumeric character from the set {a-z, A-Z, 0-9},
+    /// displayed inside the annotation.
+    /// If the annotation has a “dot” or “img” [markerStyle],
+    /// the Maps Web Snapshots API ignores this parameter.
+    String? glyphText,
 
-  /// A single alphanumeric character from the set {a-z, A-Z, 0-9},
-  /// displayed inside the annotation.
-  /// If the annotation has a “dot” or “img” [markerStyle],
-  /// the Maps Web Snapshots API ignores this parameter.
-  final String? glyphText;
+    /// The zero-based index of the image referenced
+    /// in the array of images to use for this annotation.
+    /// The Maps Web Snapshots API requires this property if [markerStyle] is img.
+    int? imgIdx,
 
-  /// The zero-based index of the image referenced
-  /// in the array of images to use for this annotation.
-  /// The Maps Web Snapshots API requires this property if [markerStyle] is img.
-  final int? imgIdx;
-
-  /// An optional offset in scale independent pixels of the image from the bottom center.
-  /// The Maps Web Snapshots API ignores the offset property
-  /// if [markerStyle] is dot, balloon, or large.
-  final AppleMapAnnotationOffset? offset;
-
-  String get query {
+    /// An optional offset in scale independent pixels of the image from the bottom center.
+    /// The Maps Web Snapshots API ignores the offset property
+    /// if [markerStyle] is dot, balloon, or large.
+    AppleMapAnnotationOffset? offset,
+  }) {
     final builder = StringBuffer();
     builder.write('{');
     builder.write('"point": "${point.query}",');
@@ -278,20 +246,8 @@ class AppleMapAnnotation with EquatableMixin {
       builder.write('"offset": "${offset!.query}",');
     }
     builder.write('}');
-    return builder.toString();
+    return AppleMapAnnotation._(builder.toString());
   }
-
-  @override
-  List<Object?> get props => [
-        markerStyle,
-        point,
-        color,
-        glyphColor,
-        glyphImgIdx,
-        glyphText,
-        imgIdx,
-        offset,
-      ];
 }
 
 /// The style of the annotation
@@ -303,26 +259,13 @@ enum AppleMapAnnotationStyle {
 }
 
 /// Support HTML color names and hex color codes
-class AppleMapAnnotationColor with EquatableMixin {
-  const AppleMapAnnotationColor({
-    required this.color,
-  });
-
-  final String color;
-
-  @override
-  List<Object?> get props => [color];
-}
+extension type AppleMapAnnotationColor(String color) {}
 
 /// An optional offset in scale independent pixels of the image from the bottom center
-class AppleMapAnnotationOffset {
-  const AppleMapAnnotationOffset({
-    required this.x,
-    required this.y,
-  });
-
-  final int x;
-  final int y;
-
-  String get query => '"$x,$y"';
+extension type AppleMapAnnotationOffset._(String query) {
+  factory AppleMapAnnotationOffset({
+    required int x,
+    required int y,
+  }) =>
+      AppleMapAnnotationOffset._('"$x,$y"');
 }
