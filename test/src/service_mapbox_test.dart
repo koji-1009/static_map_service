@@ -16,19 +16,19 @@ void main() {
       );
 
       expect(service.authority, 'api.mapbox.com');
-      expect(service.unencodedPath,
-          '/styles/v1/mapbox/streets-v11/static/139.7671,35.6812,12.5,0.0,0.0/400x300');
+      expect(
+        service.unencodedPath,
+        '/styles/v1/mapbox/streets-v11/static/139.7671,35.6812,12.5,0.0,0.0/400x300',
+      );
       expect(service.queryParameters['access_token'], accessToken);
-      expect(service.url,
-          'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/139.7671,35.6812,12.5,0.0,0.0/400x300?access_token=$accessToken');
+      expect(
+        service.url,
+        'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/139.7671,35.6812,12.5,0.0,0.0/400x300?access_token=$accessToken',
+      );
     });
 
     test('auto viewport with markers', () {
-      final marker = MapboxMarker(
-        location: center,
-        label: 'a',
-        color: 'f00',
-      );
+      final marker = MapboxMarker(location: center, label: 'a', color: 'f00');
 
       final service = MapboxMapService(
         accessToken: accessToken,
@@ -38,8 +38,10 @@ void main() {
       );
 
       // pin-s-a+f00(139.7671,35.6812)
-      expect(service.unencodedPath,
-          '/styles/v1/mapbox/streets-v11/static/pin-s-a+f00(139.7671,35.6812)/auto/400x300');
+      expect(
+        service.unencodedPath,
+        '/styles/v1/mapbox/streets-v11/static/pin-s-a+f00(139.7671,35.6812)/auto/400x300',
+      );
     });
 
     test('path overlay', () {

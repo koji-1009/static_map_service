@@ -22,14 +22,14 @@ final class GoogleMapService extends MapService {
     GoogleMapPath? path,
     GoogleMapViewports? viewports,
     Set<GoogleMapStyle>? styles,
-  })  : _center = center,
-        _zoom = zoom,
-        _markers = markers ?? const {},
-        _path = path ?? GoogleMapPath._empty,
-        _viewports = viewports ?? GoogleMapViewports._empty,
-        _styles = styles ?? const {},
-        assert(zoom >= 0 && zoom <= 21),
-        assert(scale == 1 || scale == 2);
+  }) : _center = center,
+       _zoom = zoom,
+       _markers = markers ?? const {},
+       _path = path ?? GoogleMapPath._empty,
+       _viewports = viewports ?? GoogleMapViewports._empty,
+       _styles = styles ?? const {},
+       assert(zoom >= 0 && zoom <= 21),
+       assert(scale == 1 || scale == 2);
 
   const GoogleMapService.markers({
     required this.key,
@@ -47,14 +47,14 @@ final class GoogleMapService extends MapService {
     GoogleMapPath? path,
     GoogleMapViewports? viewports,
     Set<GoogleMapStyle>? styles,
-  })  : _markers = markers,
-        _center = center,
-        _zoom = zoom,
-        _path = path ?? GoogleMapPath._empty,
-        _viewports = viewports ?? GoogleMapViewports._empty,
-        _styles = styles ?? const {},
-        assert(zoom == null || (zoom >= 0 && zoom <= 21)),
-        assert(scale == 1 || scale == 2);
+  }) : _markers = markers,
+       _center = center,
+       _zoom = zoom,
+       _path = path ?? GoogleMapPath._empty,
+       _viewports = viewports ?? GoogleMapViewports._empty,
+       _styles = styles ?? const {},
+       assert(zoom == null || (zoom >= 0 && zoom <= 21)),
+       assert(scale == 1 || scale == 2);
 
   const GoogleMapService.path({
     required this.key,
@@ -72,14 +72,14 @@ final class GoogleMapService extends MapService {
     Set<GoogleMapMarkers>? markers,
     GoogleMapViewports? viewports,
     Set<GoogleMapStyle>? styles,
-  })  : _path = path,
-        _markers = markers ?? const {},
-        _center = center,
-        _zoom = zoom,
-        _viewports = viewports ?? GoogleMapViewports._empty,
-        _styles = styles ?? const {},
-        assert(zoom == null || (zoom >= 0 && zoom <= 21)),
-        assert(scale == 1 || scale == 2);
+  }) : _path = path,
+       _markers = markers ?? const {},
+       _center = center,
+       _zoom = zoom,
+       _viewports = viewports ?? GoogleMapViewports._empty,
+       _styles = styles ?? const {},
+       assert(zoom == null || (zoom >= 0 && zoom <= 21)),
+       assert(scale == 1 || scale == 2);
 
   /// Google Maps Static API key
   ///
@@ -145,15 +145,15 @@ final class GoogleMapService extends MapService {
     final uri = Uri(
       path: unencodedPath,
       queryParameters: {
-        if (_center != null) 'center': _center.query,
+        if (_center != null) 'center': _center!.query,
         if (_zoom != null) 'zoom': '$_zoom',
         'size': size.query,
         if (scale != 1) 'scale': '$scale',
         if (format != GoogleMapFormat.png) 'format': format.value,
         if (maptype != GoogleMapType.roadmap) 'maptype': maptype.name,
-        if (language != null) 'language': language!,
-        if (region != null) 'region': region!,
-        if (mapId != null) 'map_id': mapId!,
+        'language': ?language,
+        'region': ?region,
+        'map_id': ?mapId,
         if (_markers.isNotEmpty)
           for (final marker in _markers) 'markers': marker.query,
         if (_path.isNotEmpty) 'path': _path.query,
@@ -178,15 +178,15 @@ final class GoogleMapService extends MapService {
     final signature = signatureFunction?.call(pathAndParams) ?? '';
 
     return {
-      if (_center != null) 'center': _center.query,
+      if (_center != null) 'center': _center!.query,
       if (_zoom != null) 'zoom': '$_zoom',
       'size': size.query,
       if (scale != 1) 'scale': '$scale',
       if (format != GoogleMapFormat.png) 'format': format.name,
       if (maptype != GoogleMapType.roadmap) 'maptype': maptype.name,
-      if (language != null) 'language': language!,
-      if (region != null) 'region': region!,
-      if (mapId != null) 'map_id': mapId!,
+      'language': ?language,
+      'region': ?region,
+      'map_id': ?mapId,
       if (_markers.isNotEmpty)
         for (final marker in _markers) 'markers': marker.query,
       if (_path.isNotEmpty) 'path': _path.query,
@@ -211,19 +211,11 @@ enum GoogleMapFormat {
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#MapTypes]
-enum GoogleMapType {
-  roadmap,
-  satellite,
-  hybrid,
-  terrain,
-}
+enum GoogleMapType { roadmap, satellite, hybrid, terrain }
 
-extension type GoogleMapSize._(String query) {
+extension type const GoogleMapSize._(String query) {
   /// see [https://developers.google.com/maps/documentation/maps-static/start#Imagesizes]
-  factory GoogleMapSize({
-    required int width,
-    required int height,
-  }) {
+  factory GoogleMapSize({required int width, required int height}) {
     assert(width > 0 && width <= 640);
     assert(height > 0 && height <= 640);
 
@@ -231,10 +223,7 @@ extension type GoogleMapSize._(String query) {
   }
 
   /// see [https://developers.google.com/maps/documentation/maps-static/start#Largerimagesizes]
-  factory GoogleMapSize.large({
-    required int width,
-    required int height,
-  }) {
+  factory GoogleMapSize.large({required int width, required int height}) {
     assert(width > 0 && width <= 2048);
     assert(height > 0 && height <= 2048);
 
@@ -243,39 +232,39 @@ extension type GoogleMapSize._(String query) {
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#Markers]
-extension type GoogleMapMarkers._(String query) {
+extension type const GoogleMapMarkers._(String query) {
   factory GoogleMapMarkers({
     required Set<MapLocation> locations,
     GoogleMapMarkerSize? size,
     GoogleMapColor? color,
     String? label,
-  }) =>
-      GoogleMapMarkers._([
-        if (size != null) 'size:${size.name}',
-        if (color != null) 'color:${color?.name}',
-        if (label != null) 'label:$label',
-        ...locations.map((e) => e.query),
-      ].join('|'));
+  }) => GoogleMapMarkers._(
+    [
+      if (size != null) 'size:${size.name}',
+      if (color != null) 'color:${color.name}',
+      if (label != null) 'label:$label',
+      ...locations.map((e) => e.query),
+    ].join('|'),
+  );
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#Paths]
-extension type GoogleMapPath._(String query) {
+extension type const GoogleMapPath._(String query) {
   factory GoogleMapPath({
     required List<MapLocation> locations,
     int? weight,
     GoogleMapColor? color,
     GoogleMapColor? fillColor,
     bool geodesic = false,
-  }) =>
-      GoogleMapPath._(
-        [
-          if (weight != null) 'weight:$weight',
-          if (color != null) 'color:${color?.name}',
-          if (fillColor != null) 'fillcolor:${fillColor?.name}',
-          if (geodesic) 'geodesic:true',
-          ...locations.map((e) => e.query),
-        ].join('|'),
-      );
+  }) => GoogleMapPath._(
+    [
+      if (weight != null) 'weight:$weight',
+      if (color != null) 'color:${color?.name}',
+      if (fillColor != null) 'fillcolor:${fillColor?.name}',
+      if (geodesic) 'geodesic:true',
+      ...locations.map((e) => e.query),
+    ].join('|'),
+  );
 
   factory GoogleMapPath.encoded({
     required List<MapLatLng> locations,
@@ -283,82 +272,67 @@ extension type GoogleMapPath._(String query) {
     GoogleMapColor? color,
     GoogleMapColor? fillColor,
     bool geodesic = false,
-  }) =>
-      GoogleMapPath._(
-        [
-          if (weight != null) 'weight:$weight',
-          if (color != null) 'color:${color?.name}',
-          if (fillColor != null) 'fillcolor:${fillColor?.name}',
-          if (geodesic) 'geodesic:true',
-          'enc:${encodePolyline(locations)}',
-        ].join('|'),
-      );
+  }) => GoogleMapPath._(
+    [
+      if (weight != null) 'weight:$weight',
+      if (color != null) 'color:${color?.name}',
+      if (fillColor != null) 'fillcolor:${fillColor?.name}',
+      if (geodesic) 'geodesic:true',
+      'enc:${encodePolyline(locations)}',
+    ].join('|'),
+  );
 
-  static const _empty = '' as GoogleMapPath;
+  static const _empty = GoogleMapPath._('');
 
   bool get isNotEmpty => query.isNotEmpty;
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#Viewports]
-extension type GoogleMapViewports._(String query) {
-  factory GoogleMapViewports({
-    Set<MapLocation> locations = const {},
-  }) =>
-      GoogleMapViewports._(
-        locations.map((e) => e.query).join('|'),
-      );
+extension type const GoogleMapViewports._(String query) {
+  factory GoogleMapViewports({Set<MapLocation> locations = const {}}) =>
+      GoogleMapViewports._(locations.map((e) => e.query).join('|'));
 
-  static const _empty = '' as GoogleMapViewports;
+  static const _empty = GoogleMapViewports._('');
 
   bool get isNotEmpty => query.isNotEmpty;
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/styling]
-extension type GoogleMapStyle._(String query) {
+extension type const GoogleMapStyle._(String query) {
   factory GoogleMapStyle({
     GoogleMapFeature? feature,
     GoogleMapElement? element,
     GoogleMapStyleRule? rule,
-  }) =>
-      GoogleMapStyle._(
-        [
-          if (feature != null) feature.query,
-          if (element != null) element.query,
-          if (rule != null) rule.query,
-        ].join('|'),
-      );
+  }) => GoogleMapStyle._(
+    [
+      if (feature != null) feature.query,
+      if (element != null) element.query,
+      if (rule != null) rule.query,
+    ].join('|'),
+  );
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/styling#features]
-extension type GoogleMapFeature._(String query) {
-  factory GoogleMapFeature.all() => GoogleMapFeature._('feature:all');
+extension type const GoogleMapFeature._(String query) {
+  factory GoogleMapFeature.all() => const GoogleMapFeature._('feature:all');
 
   factory GoogleMapFeature.administrative(
     GoogleMapFeatureAdministrative type,
-  ) =>
+  ) => GoogleMapFeature._('feature:${type.value}');
+
+  factory GoogleMapFeature.landscape(GoogleMapFeatureLandscape type) =>
       GoogleMapFeature._('feature:${type.value}');
 
-  factory GoogleMapFeature.landscape(
-    GoogleMapFeatureLandscape type,
-  ) =>
+  factory GoogleMapFeature.poi(GoogleMapFeaturePoi type) =>
       GoogleMapFeature._('feature:${type.value}');
 
-  factory GoogleMapFeature.poi(
-    GoogleMapFeaturePoi type,
-  ) =>
+  factory GoogleMapFeature.road(GoogleMapFeatureRoad type) =>
       GoogleMapFeature._('feature:${type.value}');
 
-  factory GoogleMapFeature.road(
-    GoogleMapFeatureRoad type,
-  ) =>
+  factory GoogleMapFeature.transit(GoogleMapFeatureTransit type) =>
       GoogleMapFeature._('feature:${type.value}');
 
-  factory GoogleMapFeature.transit(
-    GoogleMapFeatureTransit type,
-  ) =>
-      GoogleMapFeature._('feature:${type.value}');
-
-  factory GoogleMapFeature.water() => GoogleMapFeature._('feature:water');
+  factory GoogleMapFeature.water() => const GoogleMapFeature._('feature:water');
 }
 
 enum GoogleMapFeatureAdministrative {
@@ -367,8 +341,7 @@ enum GoogleMapFeatureAdministrative {
   landParcel('administrative.land_parcel'),
   locality('administrative.locality'),
   neighborhood('administrative.neighborhood'),
-  province('administrative.province'),
-  ;
+  province('administrative.province');
 
   const GoogleMapFeatureAdministrative(this.value);
 
@@ -380,8 +353,7 @@ enum GoogleMapFeatureLandscape {
   manMade('landscape:man_made'),
   natural('landscape:natural'),
   naturalLandcover('landscape:natural.landcover'),
-  naturalTerrain('landscape:natural.terrain'),
-  ;
+  naturalTerrain('landscape:natural.terrain');
 
   const GoogleMapFeatureLandscape(this.value);
 
@@ -397,8 +369,7 @@ enum GoogleMapFeaturePoi {
   park('poi.park'),
   placeOfWorship('poi.place_of_worship'),
   school('poi.school'),
-  sportsComplex('poi.sports_complex'),
-  ;
+  sportsComplex('poi.sports_complex');
 
   const GoogleMapFeaturePoi(this.value);
 
@@ -410,8 +381,7 @@ enum GoogleMapFeatureRoad {
   arterialRoad('road.arterial'),
   highway('road.highway'),
   highwayControlledAccess('road.highway.controlled_access'),
-  localRoad('road.local'),
-  ;
+  localRoad('road.local');
 
   const GoogleMapFeatureRoad(this.value);
 
@@ -424,33 +394,27 @@ enum GoogleMapFeatureTransit {
   station('transit.station'),
   stationAirport('transit.station.airport'),
   stationBus('transit.station.bus'),
-  stationRail('transit.station.rail'),
-  ;
+  stationRail('transit.station.rail');
 
   const GoogleMapFeatureTransit(this.value);
 
   final String value;
 }
 
-extension type GoogleMapElement._(String query) {
-  factory GoogleMapElement.all() => GoogleMapElement._('element:all');
+extension type const GoogleMapElement._(String query) {
+  factory GoogleMapElement.all() => const GoogleMapElement._('element:all');
 
-  factory GoogleMapElement.geometry(
-    GoogleMapElementGeometry type,
-  ) =>
+  factory GoogleMapElement.geometry(GoogleMapElementGeometry type) =>
       GoogleMapElement._('element:${type.value}');
 
-  factory GoogleMapElement.labels(
-    GoogleMapElementLabels type,
-  ) =>
+  factory GoogleMapElement.labels(GoogleMapElementLabels type) =>
       GoogleMapElement._('element:${type.value}');
 }
 
 enum GoogleMapElementGeometry {
   none('geometry'),
   fill('geometry.fill'),
-  stroke('geometry.stroke'),
-  ;
+  stroke('geometry.stroke');
 
   const GoogleMapElementGeometry(this.value);
 
@@ -462,15 +426,14 @@ enum GoogleMapElementLabels {
   icon('labels.icon'),
   text('labels.text'),
   textFill('labels.text.fill'),
-  textStroke('labels.text.stroke'),
-  ;
+  textStroke('labels.text.stroke');
 
   const GoogleMapElementLabels(this.value);
 
   final String value;
 }
 
-extension type GoogleMapStyleRule._(String query) {
+extension type const GoogleMapStyleRule._(String query) {
   factory GoogleMapStyleRule.hue(String rgb) =>
       GoogleMapStyleRule._('hue:#$rgb');
 
@@ -490,7 +453,7 @@ extension type GoogleMapStyleRule._(String query) {
   }
 
   factory GoogleMapStyleRule.invertLightness() =>
-      GoogleMapStyleRule._('invert_lightness:true');
+      const GoogleMapStyleRule._('invert_lightness:true');
 
   factory GoogleMapStyleRule.visibility(GoogleMapStyleRuleVisibility type) =>
       GoogleMapStyleRule._('visibility:${type.value}');
@@ -507,8 +470,7 @@ extension type GoogleMapStyleRule._(String query) {
 enum GoogleMapStyleRuleVisibility {
   on('on'),
   off('off'),
-  simplified('simplified'),
-  ;
+  simplified('simplified');
 
   const GoogleMapStyleRuleVisibility(this.value);
 
@@ -517,33 +479,29 @@ enum GoogleMapStyleRuleVisibility {
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#MarkerStyles]
 /// see [https://developers.google.com/maps/documentation/maps-static/start#PathStyles]
-extension type GoogleMapColor(String name) {
-  factory GoogleMapColor.hex(String hex) => GoogleMapColor('0x$hex');
+extension type const GoogleMapColor(String name) {
+  const GoogleMapColor.hex(String hex) : name = '0x$hex';
 
-  factory GoogleMapColor.black() => GoogleMapColor('black');
+  const GoogleMapColor.black() : name = 'black';
 
-  factory GoogleMapColor.brown() => GoogleMapColor('brown');
+  const GoogleMapColor.brown() : name = 'brown';
 
-  factory GoogleMapColor.green() => GoogleMapColor('green');
+  const GoogleMapColor.green() : name = 'green';
 
-  factory GoogleMapColor.purple() => GoogleMapColor('purple');
+  const GoogleMapColor.purple() : name = 'purple';
 
-  factory GoogleMapColor.yellow() => GoogleMapColor('yellow');
+  const GoogleMapColor.yellow() : name = 'yellow';
 
-  factory GoogleMapColor.blue() => GoogleMapColor('blue');
+  const GoogleMapColor.blue() : name = 'blue';
 
-  factory GoogleMapColor.gray() => GoogleMapColor('gray');
+  const GoogleMapColor.gray() : name = 'gray';
 
-  factory GoogleMapColor.orange() => GoogleMapColor('orange');
+  const GoogleMapColor.orange() : name = 'orange';
 
-  factory GoogleMapColor.red() => GoogleMapColor('red');
+  const GoogleMapColor.red() : name = 'red';
 
-  factory GoogleMapColor.white() => GoogleMapColor('white');
+  const GoogleMapColor.white() : name = 'white';
 }
 
 /// see [https://developers.google.com/maps/documentation/maps-static/start#MarkerStyles]
-enum GoogleMapMarkerSize {
-  tiny,
-  small,
-  mid,
-}
+enum GoogleMapMarkerSize { tiny, small, mid }

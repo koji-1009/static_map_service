@@ -6,10 +6,7 @@ void main() {
   group('A group of center', () {
     const teamId = 'team_id';
     const keyId = 'key_id';
-    final tokyoStation = MapLatLng(
-      latitude: 35.6812,
-      longitude: 139.7671,
-    );
+    final tokyoStation = MapLatLng(latitude: 35.6812, longitude: 139.7671);
 
     test('required parameters', () {
       final service = AppleMapService(
@@ -58,12 +55,14 @@ void main() {
       expect(
         params['overlays'],
         contains(
-            '"points": "[[139.7,35.6],[139.8,35.7]]","strokeColor": "red","lineWidth": 2.0'),
+          '"points": "[[139.7,35.6],[139.8,35.7]]","strokeColor": "red","lineWidth": 2.0',
+        ),
       );
       expect(
         params['images'],
         contains(
-            '"url": "http://example.com/image.png","height": 32,"width": 32'),
+          '"url": "http://example.com/image.png","height": 32,"width": 32',
+        ),
       );
     });
 
@@ -91,7 +90,8 @@ void main() {
       expect(
         params['overlays'],
         contains(
-            '"points": "points_data","strokeColor": "blue","lineWidth": 3.0,"lineDashPhase": 1.0,"lineDashPattern": [2.0,3.0],"fillColor": "green"'),
+          '"points": "points_data","strokeColor": "blue","lineWidth": 3.0,"lineDashPhase": 1.0,"lineDashPattern": [2.0,3.0],"fillColor": "green"',
+        ),
       );
     });
   });

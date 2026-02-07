@@ -13,7 +13,7 @@
 ///   size: GoogleMapSize(width: 400, height: 400),
 /// ).url;
 /// ```
-library static_map_service;
+library;
 
 export 'src/service.dart';
 export 'src/service_apple.dart';
