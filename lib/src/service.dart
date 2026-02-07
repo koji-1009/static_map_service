@@ -12,11 +12,7 @@ abstract base class MapService {
   Map<String, String> get queryParameters;
 
   /// [Uri] of the map service
-  Uri get uri => Uri.https(
-        authority,
-        unencodedPath,
-        queryParameters,
-      );
+  Uri get uri => Uri.https(authority, unencodedPath, queryParameters);
 
   /// The url of the map service
   String get url => uri.toString();

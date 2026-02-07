@@ -5,14 +5,8 @@ import 'package:test/test.dart';
 void main() {
   const key = 'static_map_service_key';
   const zoom = 10;
-  final mapSize = GoogleMapSize(
-    width: 400,
-    height: 400,
-  );
-  final tokyoStationLatLng = MapLatLng(
-    latitude: 35.6812,
-    longitude: 139.7671,
-  );
+  final mapSize = GoogleMapSize(width: 400, height: 400);
+  final tokyoStationLatLng = MapLatLng(latitude: 35.6812, longitude: 139.7671);
 
   group('A group of center', () {
     test('required parameters', () {
@@ -119,19 +113,13 @@ void main() {
     });
   });
 
-  final tokyoStationMarker = GoogleMapMarkers(
-    locations: {
-      tokyoStationLatLng,
-    },
-  );
+  final tokyoStationMarker = GoogleMapMarkers(locations: {tokyoStationLatLng});
 
   group('A group of markers', () {
     test('required parameters', () {
       final service = GoogleMapService.markers(
         key: key,
-        markers: {
-          tokyoStationMarker,
-        },
+        markers: {tokyoStationMarker},
         zoom: zoom,
         size: mapSize,
       );
@@ -145,9 +133,7 @@ void main() {
     test('path_and_params', () {
       final service = GoogleMapService.markers(
         key: key,
-        markers: {
-          tokyoStationMarker,
-        },
+        markers: {tokyoStationMarker},
         zoom: zoom,
         size: mapSize,
       );
@@ -161,9 +147,7 @@ void main() {
     test('signature', () {
       final service = GoogleMapService.markers(
         key: key,
-        markers: {
-          tokyoStationMarker,
-        },
+        markers: {tokyoStationMarker},
         zoom: zoom,
         size: mapSize,
         signatureFunction: (inputUrl) => 'signature',
@@ -178,9 +162,7 @@ void main() {
     test('scale (1)', () {
       final service = GoogleMapService.markers(
         key: key,
-        markers: {
-          tokyoStationMarker,
-        },
+        markers: {tokyoStationMarker},
         zoom: zoom,
         size: mapSize,
         scale: 1,
@@ -195,9 +177,7 @@ void main() {
     test('scale (2)', () {
       final service = GoogleMapService.markers(
         key: key,
-        markers: {
-          tokyoStationMarker,
-        },
+        markers: {tokyoStationMarker},
         zoom: zoom,
         size: mapSize,
         scale: 2,
@@ -216,7 +196,7 @@ void main() {
           GoogleMapMarkers(
             locations: {tokyoStationLatLng},
             size: GoogleMapMarkerSize.small,
-            color: GoogleMapColor.blue(),
+            color: const GoogleMapColor.blue(),
             label: 'A',
           ),
         },
@@ -227,7 +207,8 @@ void main() {
       expect(
         service.url,
         contains(
-            'markers=size%3Asmall%7Ccolor%3Ablue%7Clabel%3AA%7C35.6812%2C139.7671'),
+          'markers=size%3Asmall%7Ccolor%3Ablue%7Clabel%3AA%7C35.6812%2C139.7671',
+        ),
       );
     });
 
@@ -240,7 +221,7 @@ void main() {
             MapLatLng(latitude: 40.7, longitude: -120.95),
             MapLatLng(latitude: 43.252, longitude: -126.453),
           ],
-          color: GoogleMapColor.red(),
+          color: const GoogleMapColor.red(),
           weight: 5,
         ),
         size: mapSize,
@@ -250,7 +231,8 @@ void main() {
       expect(
         service.url,
         contains(
-            'path=weight%3A5%7Ccolor%3Ared%7Cenc%3A_p~iF~ps%7CU_ulLnnqC_mqNvxq%60%40'),
+          'path=weight%3A5%7Ccolor%3Ared%7Cenc%3A_p~iF~ps%7CU_ulLnnqC_mqNvxq%60%40',
+        ),
       );
     });
   });

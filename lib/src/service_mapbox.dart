@@ -23,9 +23,10 @@ final class MapboxMapService extends MapService {
     this.padding,
     this.beforeLayer,
   }) : assert(
-            (auto && center == null && zoom == null) ||
-                (!auto && center != null && zoom != null),
-            'If auto is true, center and zoom must be null. If auto is false, center and zoom must be provided.');
+         (auto && center == null && zoom == null) ||
+             (!auto && center != null && zoom != null),
+         'If auto is true, center and zoom must be null. If auto is false, center and zoom must be provided.',
+       );
 
   /// Mapbox Access Token
   final String accessToken;
@@ -95,16 +96,8 @@ final class MapboxMapService extends MapService {
       // Mapbox uses lon,lat order
       if (center is MapLatLng) {
         final latLng = center as MapLatLng;
-        // Parse to swap to lon,lat if needed, but MapLatLng stores as "lat,lng".
-        // We need to parse it or change MapLatLng to expose values.
-        // Assuming MapLatLng.query is "lat,lng".
-        final parts = latLng.query.split(',');
-        buffer.write('/${parts[1]},${parts[0]}');
+        buffer.write('/${latLng.longitude},${latLng.latitude}');
       } else {
-        // Fallback or error? Mapbox strictly requires lon,lat numbers.
-        // MapAddress is not supported in the path for center directly in this format usually,
-        // but let's assume we use MapLatLng mostly.
-        // Actually Mapbox Static API center must be lon,lat.
         throw ArgumentError('Center must be MapLatLng for Mapbox service');
       }
       buffer.write(',$zoom,$bearing,$pitch');
@@ -125,17 +118,14 @@ final class MapboxMapService extends MapService {
       'access_token': accessToken,
       if (!logo) 'logo': 'false',
       if (!attribution) 'attribution': 'false',
-      if (padding != null) 'padding': padding!,
-      if (beforeLayer != null) 'before_layer': beforeLayer!,
+      'padding': ?padding,
+      'before_layer': ?beforeLayer,
     };
   }
 }
 
-extension type MapboxMapSize._(String query) {
-  factory MapboxMapSize({
-    required int width,
-    required int height,
-  }) {
+extension type const MapboxMapSize._(String query) {
+  factory MapboxMapSize({required int width, required int height}) {
     assert(width >= 1 && width <= 1280);
     assert(height >= 1 && height <= 1280);
     return MapboxMapSize._('${width}x$height');
@@ -166,9 +156,8 @@ class MapboxMarker implements MapboxMapOverlay {
 
   @override
   String get query {
-    final parts = location.query.split(',');
-    final lon = parts[1];
-    final lat = parts[0];
+    final lon = location.longitude;
+    final lat = location.latitude;
 
     if (url != null) {
       // url-{url}(lon,lat)
@@ -227,9 +216,7 @@ class MapboxPath implements MapboxMapOverlay {
 /// GeoJSON overlay
 /// geojson({geojson})
 class MapboxGeoJson implements MapboxMapOverlay {
-  const MapboxGeoJson({
-    required this.geoJson,
-  });
+  const MapboxGeoJson({required this.geoJson});
 
   final String geoJson;
 

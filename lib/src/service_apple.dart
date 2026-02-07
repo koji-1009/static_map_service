@@ -42,7 +42,7 @@ final class AppleMapService extends MapService {
     this.images = const {},
     this.referer,
     this.expires,
-  }) : center = 'auto' as MapAddress;
+  }) : center = const MapAddress('auto');
 
   /// Apple Developer Team ID
   final String teamId;
@@ -125,7 +125,7 @@ final class AppleMapService extends MapService {
         if (images.isNotEmpty)
           'images': '[${images.map((image) => image.query).join(',')}]',
         if (mapType != AppleMapType.standard) 't': mapType.name,
-        if (referer != null) 'referer': referer!,
+        'referer': ?referer,
         if (expires != null) 'expires': '$expires',
       },
     );
@@ -162,45 +162,35 @@ final class AppleMapService extends MapService {
       if (images.isNotEmpty)
         'images': '[${images.map((image) => image.query).join(',')}]',
       if (mapType != AppleMapType.standard) 't': mapType.name,
-      if (referer != null) 'referer': referer!,
+      'referer': ?referer,
       if (expires != null) 'expires': '$expires',
       if (signature.isNotEmpty) 'signature': signature,
     };
   }
 }
 
-enum AppleMapColorScheme {
-  light,
-  dark,
-}
+enum AppleMapColorScheme { light, dark }
 
-enum AppleMapType {
-  standard,
-  satellite,
-  hybrid,
-}
+enum AppleMapType { standard, satellite, hybrid }
 
 /// The location of the map
-const centerLocation = 'center' as MapAddress;
+const centerLocation = MapAddress('center');
 
-extension type AppleMapSize._(String query) {
-  factory AppleMapSize({
-    required int width,
-    required int height,
-  }) {
+extension type const AppleMapSize._(String query) {
+  factory AppleMapSize({required int width, required int height}) {
     assert(width >= 50 && width <= 640);
     assert(height >= 50 && height <= 640);
 
     return AppleMapSize._('$width,$height');
   }
 
-  static const auto = '600x400' as AppleMapSize;
+  static const auto = AppleMapSize._('600x400');
 }
 
 /// The annotation to display on the map
 ///
 /// see [https://developer.apple.com/documentation/snapshots/annotation]
-extension type AppleMapAnnotation._(String query) {
+extension type const AppleMapAnnotation._(String query) {
   factory AppleMapAnnotation({
     /// The style of the annotation
     AppleMapAnnotationStyle markerStyle = AppleMapAnnotationStyle.balloon,
@@ -217,25 +207,25 @@ extension type AppleMapAnnotation._(String query) {
     /// The zero-based index of the glyph image referenced in the array of
     /// images used for a specific annotation.
     ///
-    /// Don’t set the [glyphText] property when using this property.
-    /// If the annotation has a “dot” or “img” [markerStyle],
+    /// Don’t set the `glyphText` property when using this property.
+    /// If the annotation has a 'dot' or 'img' `markerStyle`,
     /// the Maps Web Snapshots API ignores this parameter.
     int? glyphImgIdx,
 
     /// A single alphanumeric character from the set {a-z, A-Z, 0-9},
     /// displayed inside the annotation.
-    /// If the annotation has a “dot” or “img” [markerStyle],
+    /// If the annotation has a 'dot' or 'img' `markerStyle`,
     /// the Maps Web Snapshots API ignores this parameter.
     String? glyphText,
 
     /// The zero-based index of the image referenced
     /// in the array of images to use for this annotation.
-    /// The Maps Web Snapshots API requires this property if [markerStyle] is img.
+    /// The Maps Web Snapshots API requires this property if `markerStyle` is img.
     int? imgIdx,
 
     /// An optional offset in scale independent pixels of the image from the bottom center.
-    /// The Maps Web Snapshots API ignores the offset property
-    /// if [markerStyle] is dot, balloon, or large.
+    /// The Maps Web Snapshots API ignores the `offset` property
+    /// if `markerStyle` is dot, balloon, or large.
     AppleMapAnnotationOffset? offset,
   }) {
     final builder = StringBuffer();
@@ -243,10 +233,10 @@ extension type AppleMapAnnotation._(String query) {
     builder.write('"point": "${point.query}",');
     builder.write('"markerStyle": "${markerStyle.name}",');
     if (color != null) {
-      builder.write('"color": "${color!.color}",');
+      builder.write('"color": "${color.color}",');
     }
     if (glyphColor != null) {
-      builder.write('"glyphColor": "${glyphColor!.color}",');
+      builder.write('"glyphColor": "${glyphColor.color}",');
     }
     if (glyphImgIdx != null) {
       builder.write('"glyphImgIdx": $glyphImgIdx,');
@@ -258,7 +248,7 @@ extension type AppleMapAnnotation._(String query) {
       builder.write('"imgIdx": $imgIdx,');
     }
     if (offset != null) {
-      builder.write('"offset": "${offset!.query}",');
+      builder.write('"offset": "${offset.query}",');
     }
     builder.write('}');
     return AppleMapAnnotation._(builder.toString());
@@ -266,52 +256,27 @@ extension type AppleMapAnnotation._(String query) {
 }
 
 /// The style of the annotation
-enum AppleMapAnnotationStyle {
-  dot,
-  balloon,
-  large,
-  img,
-}
+enum AppleMapAnnotationStyle { dot, balloon, large, img }
 
 /// Support HTML color names and hex color codes
-extension type AppleMapAnnotationColor(String color) {}
+extension type const AppleMapAnnotationColor(String color) {}
 
 /// An optional offset in scale independent pixels of the image from the bottom center
-extension type AppleMapAnnotationOffset._(String query) {
-  factory AppleMapAnnotationOffset({
-    required int x,
-    required int y,
-  }) =>
+extension type const AppleMapAnnotationOffset._(String query) {
+  factory AppleMapAnnotationOffset({required int x, required int y}) =>
       AppleMapAnnotationOffset._('"$x,$y"');
 }
 
 /// The overlay to display on the map
 ///
 /// see [https://developer.apple.com/documentation/snapshots/overlay]
-extension type AppleMapOverlay._(String query) {
+extension type const AppleMapOverlay._(String query) {
   factory AppleMapOverlay({
-    /// A JSON representation of a GeoJSON object (Point, MultiPoint, LineString,
-    /// MultiLineString, Polygon, MultiPolygon, GeometryCollection, Feature, or
-    /// FeatureCollection) or a URL pointing to a valid GeoJSON file.
     required String points,
-
-    /// The color of the stroke line.
-    /// You can specify a hex color code or a CSS color name.
     String? strokeColor,
-
-    /// The width of the stroke line in pixels.
-    /// The default value is 2.
     double? lineWidth,
-
-    /// The length of the dashes in the line stroke pattern.
-    /// The default value is 0.
     double? lineDashPhase,
-
-    /// An array of numbers that specify the lengths of alternating dashes and gaps.
     List<double>? lineDashPattern,
-
-    /// The color of the fill for polygons.
-    /// You can specify a hex color code or a CSS color name.
     String? fillColor,
   }) {
     final builder = StringBuffer();
@@ -332,8 +297,6 @@ extension type AppleMapOverlay._(String query) {
     if (fillColor != null) {
       builder.write('"fillColor": "$fillColor",');
     }
-    // Remove trailing comma if exists (though JSON parsers might be strict, standard JSON doesn't allow it, but builder logic here appends comma after each. Need to handle last item correctly or replace last comma)
-    // A simpler way with manual checks or string manipulation:
     final result = builder.toString();
     if (result.endsWith(',')) {
       return AppleMapOverlay._('${result.substring(0, result.length - 1)}}');
@@ -346,21 +309,11 @@ extension type AppleMapOverlay._(String query) {
 /// The image to display on the map
 ///
 /// see [https://developer.apple.com/documentation/snapshots/image]
-extension type AppleMapImage._(String query) {
-  factory AppleMapImage({
-    /// The URL of the image.
-    required String url,
-
-    /// The height of the image in pixels.
-    int? height,
-
-    /// The width of the image in pixels.
-    int? width,
-  }) {
+extension type const AppleMapImage._(String query) {
+  factory AppleMapImage({required String url, int? height, int? width}) {
     final builder = StringBuffer();
     builder.write('{');
-    builder.write(
-        '"url": "$url"'); // url is required, so no trailing comma check needed strictly if we add others conditionally
+    builder.write('"url": "$url"');
     if (height != null) {
       builder.write(',"height": $height');
     }

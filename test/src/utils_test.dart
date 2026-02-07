@@ -20,9 +20,7 @@ void main() {
     });
 
     test('encodes single point', () {
-      final points = [
-        MapLatLng(latitude: 38.5, longitude: -120.2),
-      ];
+      final points = [MapLatLng(latitude: 38.5, longitude: -120.2)];
       // 38.5 * 1e5 = 3850000 -> binary...
       // -120.2 * 1e5 = -12020000
       // Just check it returns non-empty string.
