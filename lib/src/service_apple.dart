@@ -140,7 +140,7 @@ final class AppleMapService extends MapService {
 
   @override
   Map<String, String> get queryParameters {
-    final signature = signatureFunction(unencodedPath);
+    final signature = signatureFunction(pathAndParams);
 
     return {
       'center': center.query,
@@ -228,30 +228,18 @@ extension type const AppleMapAnnotation._(String query) {
     /// if `markerStyle` is dot, balloon, or large.
     AppleMapAnnotationOffset? offset,
   }) {
-    final builder = StringBuffer();
-    builder.write('{');
-    builder.write('"point": "${point.query}",');
-    builder.write('"markerStyle": "${markerStyle.name}",');
-    if (color != null) {
-      builder.write('"color": "${color.color}",');
-    }
-    if (glyphColor != null) {
-      builder.write('"glyphColor": "${glyphColor.color}",');
-    }
-    if (glyphImgIdx != null) {
-      builder.write('"glyphImgIdx": $glyphImgIdx,');
-    }
-    if (glyphText != null) {
-      builder.write('"glyphText": "$glyphText",');
-    }
-    if (imgIdx != null) {
-      builder.write('"imgIdx": $imgIdx,');
-    }
-    if (offset != null) {
-      builder.write('"offset": "${offset.query}",');
-    }
-    builder.write('}');
-    return AppleMapAnnotation._(builder.toString());
+    final parts = [
+      '"point": "${point.query}"',
+      '"markerStyle": "${markerStyle.name}"',
+      if (color != null) '"color": "${color.color}"',
+      if (glyphColor != null) '"glyphColor": "${glyphColor.color}"',
+      if (glyphImgIdx != null) '"glyphImgIdx": $glyphImgIdx',
+      if (glyphText != null) '"glyphText": "$glyphText"',
+      if (imgIdx != null) '"imgIdx": $imgIdx',
+      if (offset != null) '"offset": "${offset.query}"',
+    ];
+
+    return AppleMapAnnotation._('{${parts.join(',')}}');
   }
 }
 
@@ -264,7 +252,7 @@ extension type const AppleMapAnnotationColor(String color) {}
 /// An optional offset in scale independent pixels of the image from the bottom center
 extension type const AppleMapAnnotationOffset._(String query) {
   factory AppleMapAnnotationOffset({required int x, required int y}) =>
-      AppleMapAnnotationOffset._('"$x,$y"');
+      AppleMapAnnotationOffset._('$x,$y');
 }
 
 /// The overlay to display on the map
@@ -279,30 +267,17 @@ extension type const AppleMapOverlay._(String query) {
     List<double>? lineDashPattern,
     String? fillColor,
   }) {
-    final builder = StringBuffer();
-    builder.write('{');
-    builder.write('"points": "$points",');
-    if (strokeColor != null) {
-      builder.write('"strokeColor": "$strokeColor",');
-    }
-    if (lineWidth != null) {
-      builder.write('"lineWidth": $lineWidth,');
-    }
-    if (lineDashPhase != null) {
-      builder.write('"lineDashPhase": $lineDashPhase,');
-    }
-    if (lineDashPattern != null) {
-      builder.write('"lineDashPattern": [${lineDashPattern.join(',')}],');
-    }
-    if (fillColor != null) {
-      builder.write('"fillColor": "$fillColor",');
-    }
-    final result = builder.toString();
-    if (result.endsWith(',')) {
-      return AppleMapOverlay._('${result.substring(0, result.length - 1)}}');
-    }
-    builder.write('}');
-    return AppleMapOverlay._(builder.toString());
+    final parts = [
+      '"points": "$points"',
+      if (strokeColor != null) '"strokeColor": "$strokeColor"',
+      if (lineWidth != null) '"lineWidth": $lineWidth',
+      if (lineDashPhase != null) '"lineDashPhase": $lineDashPhase',
+      if (lineDashPattern != null)
+        '"lineDashPattern": [${lineDashPattern.join(',')}]',
+      if (fillColor != null) '"fillColor": "$fillColor"',
+    ];
+
+    return AppleMapOverlay._('{${parts.join(',')}}');
   }
 }
 
@@ -311,16 +286,12 @@ extension type const AppleMapOverlay._(String query) {
 /// see [https://developer.apple.com/documentation/snapshots/image]
 extension type const AppleMapImage._(String query) {
   factory AppleMapImage({required String url, int? height, int? width}) {
-    final builder = StringBuffer();
-    builder.write('{');
-    builder.write('"url": "$url"');
-    if (height != null) {
-      builder.write(',"height": $height');
-    }
-    if (width != null) {
-      builder.write(',"width": $width');
-    }
-    builder.write('}');
-    return AppleMapImage._(builder.toString());
+    final parts = [
+      '"url": "$url"',
+      if (height != null) '"height": $height',
+      if (width != null) '"width": $width',
+    ];
+
+    return AppleMapImage._('{${parts.join(',')}}');
   }
 }
