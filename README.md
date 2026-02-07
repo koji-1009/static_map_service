@@ -1,8 +1,10 @@
 # static_map_service
 
-A Dart package for generating static map images url from Google Maps, Apple Snapshots, and Mapbox Static Images.
-
 [![pub package](https://img.shields.io/pub/v/static_map_service.svg)](https://pub.dev/packages/static_map_service)
+[![analyze](https://github.com/koji-1009/static_map_sertice/actions/workflows/analyze.yml/badge.svg)](https://github.com/koji-1009/static_map_sertice/actions/workflows/analyze.yml)
+[![codecov](https://codecov.io/gh/koji-1009/static_map_sertice/graph/badge.svg)](https://codecov.io/gh/koji-1009/static_map_sertice)
+
+A Dart package for generating static map images url from Google Maps, Apple Snapshots, and Mapbox Static Images.
 
 ## Features
 
@@ -160,3 +162,7 @@ final url = MapboxMapService(
 ## Additional Information
 
 For more details, please refer to the documentation of each service.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
