@@ -11,22 +11,36 @@ final class MapboxMapService extends MapService {
     this.username = 'mapbox',
     this.styleId = 'streets-v11',
     this.overlays = const [],
-    this.center,
-    this.zoom,
+    required MapLocation center,
+    required double zoom,
     this.bearing = 0,
     this.pitch = 0,
-    this.auto = false,
     required this.size,
     this.retina = false,
     this.logo = true,
     this.attribution = true,
     this.padding,
     this.beforeLayer,
-  }) : assert(
-         (auto && center == null && zoom == null) ||
-             (!auto && center != null && zoom != null),
-         'If auto is true, center and zoom must be null. If auto is false, center and zoom must be provided.',
-       );
+  }) : _center = center,
+       _zoom = zoom,
+       _auto = false;
+
+  const MapboxMapService.auto({
+    required this.accessToken,
+    this.username = 'mapbox',
+    this.styleId = 'streets-v11',
+    required this.overlays,
+    this.bearing = 0,
+    this.pitch = 0,
+    required this.size,
+    this.retina = false,
+    this.logo = true,
+    this.attribution = true,
+    this.padding,
+    this.beforeLayer,
+  }) : _center = null,
+       _zoom = null,
+       _auto = true;
 
   /// Mapbox Access Token
   final String accessToken;
@@ -43,10 +57,10 @@ final class MapboxMapService extends MapService {
   final List<MapboxMapOverlay> overlays;
 
   /// The center point of the map image
-  final MapLocation? center;
+  final MapLocation? _center;
 
   /// The zoom level of the map
-  final double? zoom;
+  final double? _zoom;
 
   /// The bearing of the map
   /// Default is 0
@@ -57,7 +71,7 @@ final class MapboxMapService extends MapService {
   final double pitch;
 
   /// If true, the map's position is automatically determined based on the overlays
-  final bool auto;
+  final bool _auto;
 
   /// The size of the map image
   final MapboxMapSize size;
@@ -90,17 +104,16 @@ final class MapboxMapService extends MapService {
       buffer.write('/${overlays.map((e) => e.query).join(',')}');
     }
 
-    if (auto) {
+    if (_auto) {
       buffer.write('/auto');
     } else {
       // Mapbox uses lon,lat order
-      if (center is MapLatLng) {
-        final latLng = center as MapLatLng;
-        buffer.write('/${latLng.longitude},${latLng.latitude}');
+      if (_center is MapLatLng) {
+        buffer.write('/${_center.longitude},${_center.latitude}');
       } else {
         throw ArgumentError('Center must be MapLatLng for Mapbox service');
       }
-      buffer.write(',$zoom,$bearing,$pitch');
+      buffer.write(',$_zoom,$bearing,$pitch');
     }
 
     buffer.write('/${size.query}');
@@ -133,42 +146,31 @@ extension type const MapboxMapSize._(String query) {
 }
 
 /// Base class for Mapbox overlays
-abstract class MapboxMapOverlay {
-  String get query;
-}
+extension type const MapboxMapOverlay(String query) {}
 
 /// Marker overlay
 /// pin-s-label+color(lon,lat) or url-url(lon,lat)
-class MapboxMarker implements MapboxMapOverlay {
-  const MapboxMarker({
-    required this.location,
-    this.label,
-    this.color,
-    this.size = MapboxMarkerSize.small,
-    this.url,
-  });
-
-  final MapLatLng location;
-  final String? label; // symbol name or single character
-  final String? color; // hex code without #
-  final MapboxMarkerSize size;
-  final String? url;
-
-  @override
-  String get query {
+extension type const MapboxMarker._(String query) implements MapboxMapOverlay {
+  factory MapboxMarker({
+    required MapLatLng location,
+    String? label,
+    String? color,
+    MapboxMarkerSize size = MapboxMarkerSize.small,
+    String? url,
+  }) {
     final lon = location.longitude;
     final lat = location.latitude;
 
     if (url != null) {
       // url-{url}(lon,lat)
-      return 'url-${Uri.encodeComponent(url!)}($lon,$lat)';
+      return MapboxMarker._('url-${Uri.encodeComponent(url)}($lon,$lat)');
     } else {
       // pin-{size}-{label}+{color}(lon,lat)
       final sb = StringBuffer('pin-${size.value}');
       if (label != null) sb.write('-$label');
       if (color != null) sb.write('+$color');
       sb.write('($lon,$lat)');
-      return sb.toString();
+      return MapboxMarker._(sb.toString());
     }
   }
 }
@@ -184,44 +186,29 @@ enum MapboxMarkerSize {
 
 /// Path overlay
 /// path-{strokeWidth}+{strokeColor}-{strokeOpacity}({polyline})
-class MapboxPath implements MapboxMapOverlay {
-  const MapboxPath({
-    required this.locations,
-    this.strokeWidth = 1.0,
-    this.strokeColor = '0000FF',
-    this.strokeOpacity = 1.0,
-    this.fillColor,
-    this.fillOpacity = 0.0,
-  });
-
-  final List<MapLatLng> locations;
-  final double strokeWidth;
-  final String strokeColor; // hex without #
-  final double strokeOpacity;
-  final String? fillColor;
-  final double fillOpacity;
-
-  @override
-  String get query {
+extension type const MapboxPath._(String query) implements MapboxMapOverlay {
+  factory MapboxPath({
+    required List<MapLatLng> locations,
+    double strokeWidth = 1.0,
+    String strokeColor = '0000FF',
+    double strokeOpacity = 1.0,
+    String? fillColor,
+    double fillOpacity = 0.0,
+  }) {
     final polyline = Uri.encodeComponent(encodePolyline(locations));
     final sb = StringBuffer('path-$strokeWidth+$strokeColor-$strokeOpacity');
     if (fillColor != null) {
       sb.write('+$fillColor-$fillOpacity');
     }
     sb.write('($polyline)');
-    return sb.toString();
+    return MapboxPath._(sb.toString());
   }
 }
 
 /// GeoJSON overlay
 /// geojson({geojson})
-class MapboxGeoJson implements MapboxMapOverlay {
-  const MapboxGeoJson({required this.geoJson});
-
-  final String geoJson;
-
-  @override
-  String get query {
-    return 'geojson(${Uri.encodeComponent(geoJson)})';
+extension type const MapboxGeoJson._(String query) implements MapboxMapOverlay {
+  factory MapboxGeoJson({required String geoJson}) {
+    return MapboxGeoJson._('geojson(${Uri.encodeComponent(geoJson)})');
   }
 }

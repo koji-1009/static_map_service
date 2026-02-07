@@ -35,9 +35,8 @@ void main() {
   print('Apple Maps URL: $appleUrl');
 
   // 4. Mapbox Static Images API (Auto-fitting overlays)
-  final mapboxUrl = MapboxMapService(
+  final mapboxUrl = MapboxMapService.auto(
     accessToken: 'YOUR_MAPBOX_ACCESS_TOKEN',
-    auto: true,
     overlays: [
       MapboxMarker(
         location: MapLatLng(latitude: 35.6812, longitude: 139.7671),
