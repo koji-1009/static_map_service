@@ -1,8 +1,8 @@
 # static_map_service
 
 [![pub package](https://img.shields.io/pub/v/static_map_service.svg)](https://pub.dev/packages/static_map_service)
-[![analyze](https://github.com/koji-1009/static_map_sertice/actions/workflows/analyze.yml/badge.svg)](https://github.com/koji-1009/static_map_sertice/actions/workflows/analyze.yml)
-[![codecov](https://codecov.io/gh/koji-1009/static_map_sertice/graph/badge.svg)](https://codecov.io/gh/koji-1009/static_map_sertice)
+[![CI](https://github.com/koji-1009/static_map_service/actions/workflows/analyze.yaml/badge.svg)](https://github.com/koji-1009/static_map_service/actions/workflows/analyze.yaml)
+[![codecov](https://codecov.io/gh/koji-1009/static_map_service/branch/main/graph/badge.svg)](https://codecov.io/gh/koji-1009/static_map_service)
 
 A Dart package for generating static map images url from Google Maps, Apple Snapshots, and Mapbox Static Images.
 
