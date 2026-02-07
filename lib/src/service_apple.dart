@@ -4,9 +4,6 @@ import 'package:static_map_service/src/shared.dart';
 /// Apple Maps Web Snapshots API entity
 ///
 /// see [https://developer.apple.com/documentation/snapshots]
-///
-/// TODO: [https://developer.apple.com/documentation/snapshots/overlay]
-/// TODO: [https://developer.apple.com/documentation/snapshots/image]
 final class AppleMapService extends MapService {
   const AppleMapService({
     required this.teamId,
@@ -22,6 +19,8 @@ final class AppleMapService extends MapService {
     this.poi = true,
     this.lang = 'en-US',
     this.annotations = const {},
+    this.overlays = const {},
+    this.images = const {},
     this.referer,
     this.expires,
   }) : assert(scale >= 1 && scale <= 3);
@@ -39,6 +38,8 @@ final class AppleMapService extends MapService {
     this.colorScheme = AppleMapColorScheme.light,
     this.poi = true,
     this.lang = 'en-US',
+    this.overlays = const {},
+    this.images = const {},
     this.referer,
     this.expires,
   }) : center = 'auto' as MapAddress;
@@ -95,6 +96,12 @@ final class AppleMapService extends MapService {
   /// The time in seconds from epoch at which the request expires
   final int? expires;
 
+  /// The overlays to display on the map
+  final Set<AppleMapOverlay> overlays;
+
+  /// The images to display on the map
+  final Set<AppleMapImage> images;
+
   String get pathAndParams {
     final uri = Uri(
       path: unencodedPath,
@@ -113,6 +120,10 @@ final class AppleMapService extends MapService {
         if (annotations.isNotEmpty)
           'annotations':
               '[${annotations.map((annotation) => annotation.query).join(',')}]',
+        if (overlays.isNotEmpty)
+          'overlays': '[${overlays.map((overlay) => overlay.query).join(',')}]',
+        if (images.isNotEmpty)
+          'images': '[${images.map((image) => image.query).join(',')}]',
         if (mapType != AppleMapType.standard) 't': mapType.name,
         if (referer != null) 'referer': referer!,
         if (expires != null) 'expires': '$expires',
@@ -146,6 +157,10 @@ final class AppleMapService extends MapService {
       if (annotations.isNotEmpty)
         'annotations':
             '[${annotations.map((annotation) => annotation.query).join(',')}]',
+      if (overlays.isNotEmpty)
+        'overlays': '[${overlays.map((overlay) => overlay.query).join(',')}]',
+      if (images.isNotEmpty)
+        'images': '[${images.map((image) => image.query).join(',')}]',
       if (mapType != AppleMapType.standard) 't': mapType.name,
       if (referer != null) 'referer': referer!,
       if (expires != null) 'expires': '$expires',
@@ -268,4 +283,91 @@ extension type AppleMapAnnotationOffset._(String query) {
     required int y,
   }) =>
       AppleMapAnnotationOffset._('"$x,$y"');
+}
+
+/// The overlay to display on the map
+///
+/// see [https://developer.apple.com/documentation/snapshots/overlay]
+extension type AppleMapOverlay._(String query) {
+  factory AppleMapOverlay({
+    /// A JSON representation of a GeoJSON object (Point, MultiPoint, LineString,
+    /// MultiLineString, Polygon, MultiPolygon, GeometryCollection, Feature, or
+    /// FeatureCollection) or a URL pointing to a valid GeoJSON file.
+    required String points,
+
+    /// The color of the stroke line.
+    /// You can specify a hex color code or a CSS color name.
+    String? strokeColor,
+
+    /// The width of the stroke line in pixels.
+    /// The default value is 2.
+    double? lineWidth,
+
+    /// The length of the dashes in the line stroke pattern.
+    /// The default value is 0.
+    double? lineDashPhase,
+
+    /// An array of numbers that specify the lengths of alternating dashes and gaps.
+    List<double>? lineDashPattern,
+
+    /// The color of the fill for polygons.
+    /// You can specify a hex color code or a CSS color name.
+    String? fillColor,
+  }) {
+    final builder = StringBuffer();
+    builder.write('{');
+    builder.write('"points": "$points",');
+    if (strokeColor != null) {
+      builder.write('"strokeColor": "$strokeColor",');
+    }
+    if (lineWidth != null) {
+      builder.write('"lineWidth": $lineWidth,');
+    }
+    if (lineDashPhase != null) {
+      builder.write('"lineDashPhase": $lineDashPhase,');
+    }
+    if (lineDashPattern != null) {
+      builder.write('"lineDashPattern": [${lineDashPattern.join(',')}],');
+    }
+    if (fillColor != null) {
+      builder.write('"fillColor": "$fillColor",');
+    }
+    // Remove trailing comma if exists (though JSON parsers might be strict, standard JSON doesn't allow it, but builder logic here appends comma after each. Need to handle last item correctly or replace last comma)
+    // A simpler way with manual checks or string manipulation:
+    final result = builder.toString();
+    if (result.endsWith(',')) {
+      return AppleMapOverlay._('${result.substring(0, result.length - 1)}}');
+    }
+    builder.write('}');
+    return AppleMapOverlay._(builder.toString());
+  }
+}
+
+/// The image to display on the map
+///
+/// see [https://developer.apple.com/documentation/snapshots/image]
+extension type AppleMapImage._(String query) {
+  factory AppleMapImage({
+    /// The URL of the image.
+    required String url,
+
+    /// The height of the image in pixels.
+    int? height,
+
+    /// The width of the image in pixels.
+    int? width,
+  }) {
+    final builder = StringBuffer();
+    builder.write('{');
+    builder.write(
+        '"url": "$url"'); // url is required, so no trailing comma check needed strictly if we add others conditionally
+    if (height != null) {
+      builder.write(',"height": $height');
+    }
+    if (width != null) {
+      builder.write(',"width": $width');
+    }
+    builder.write('}');
+    return AppleMapImage._(builder.toString());
+  }
 }

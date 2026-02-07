@@ -1,5 +1,6 @@
 import 'package:static_map_service/src/service.dart';
 import 'package:static_map_service/src/shared.dart';
+import 'package:static_map_service/src/utils.dart';
 
 /// Google Maps Static API entity
 ///
@@ -273,6 +274,23 @@ extension type GoogleMapPath._(String query) {
           if (fillColor != null) 'fillcolor:${fillColor?.name}',
           if (geodesic) 'geodesic:true',
           ...locations.map((e) => e.query),
+        ].join('|'),
+      );
+
+  factory GoogleMapPath.encoded({
+    required List<MapLatLng> locations,
+    int? weight,
+    GoogleMapColor? color,
+    GoogleMapColor? fillColor,
+    bool geodesic = false,
+  }) =>
+      GoogleMapPath._(
+        [
+          if (weight != null) 'weight:$weight',
+          if (color != null) 'color:${color?.name}',
+          if (fillColor != null) 'fillcolor:${fillColor?.name}',
+          if (geodesic) 'geodesic:true',
+          'enc:${encodePolyline(locations)}',
         ].join('|'),
       );
 
