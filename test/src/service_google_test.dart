@@ -590,7 +590,9 @@ void main() {
         },
         styles: {
           GoogleMapStyle(feature: GoogleMapFeature.water()),
-          GoogleMapStyle(feature: GoogleMapFeature.road(GoogleMapFeatureRoad.highway)),
+          GoogleMapStyle(
+            feature: GoogleMapFeature.road(GoogleMapFeatureRoad.highway),
+          ),
         },
       );
 

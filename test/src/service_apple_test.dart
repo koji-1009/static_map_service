@@ -236,15 +236,9 @@ void main() {
         signatureFunction: (inputUrl) => 'signature',
         center: tokyoStation,
         colorScheme: AppleMapColorScheme.dark,
-        annotations: {
-          AppleMapAnnotation(point: tokyoStation),
-        },
-        overlays: {
-          AppleMapOverlay(points: 'p'),
-        },
-        images: {
-          AppleMapImage(url: 'u'),
-        },
+        annotations: {AppleMapAnnotation(point: tokyoStation)},
+        overlays: {AppleMapOverlay(points: 'p')},
+        images: {AppleMapImage(url: 'u')},
       );
 
       final params = service.queryParameters;

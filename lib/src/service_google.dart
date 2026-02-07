@@ -140,34 +140,27 @@ final class GoogleMapService extends MapService {
   /// see [https://developers.google.com/maps/documentation/maps-static/styling]
   final Set<GoogleMapStyle> _styles;
 
+  Map<String, String> get _params => {
+    if (_center != null) 'center': _center!.query,
+    if (_zoom != null) 'zoom': '$_zoom',
+    'size': size.query,
+    if (scale != 1) 'scale': '$scale',
+    if (format != GoogleMapFormat.png) 'format': format.value,
+    if (maptype != GoogleMapType.roadmap) 'maptype': maptype.name,
+    'language': ?language,
+    'region': ?region,
+    'map_id': ?mapId,
+    if (_markers.isNotEmpty) 'markers': _markers.map((e) => e.query).join('|'),
+    if (_path.isNotEmpty) 'path': _path.query,
+    if (_viewports.isNotEmpty) 'visible': _viewports.query,
+    if (_styles.isNotEmpty) 'style': _styles.map((e) => e.query).join('|'),
+    'key': key,
+  };
+
   /// The path and parameters for [signatureFunction]
   String get pathAndParams {
-    final queryParts = <String>[];
-    void add(String key, String value) => queryParts.add(
-      '${Uri.encodeComponent(key)}=${Uri.encodeComponent(value)}',
-    );
-
-    if (_center != null) add('center', _center!.query);
-    if (_zoom != null) add('zoom', '$_zoom');
-    add('size', size.query);
-    if (scale != 1) add('scale', '$scale');
-    if (format != GoogleMapFormat.png) add('format', format.value);
-    if (maptype != GoogleMapType.roadmap) add('maptype', maptype.name);
-    if (language != null) add('language', language!);
-    if (region != null) add('region', region!);
-    if (mapId != null) add('map_id', mapId!);
-
-    for (final marker in _markers) {
-      add('markers', marker.query);
-    }
-    if (_path.isNotEmpty) add('path', _path.query);
-    if (_viewports.isNotEmpty) add('visible', _viewports.query);
-    for (final style in _styles) {
-      add('style', style.query);
-    }
-    add('key', key);
-
-    return Uri(path: unencodedPath, query: queryParts.join('&')).toString();
+    final uri = Uri(path: unencodedPath, queryParameters: _params);
+    return uri.toString();
   }
 
   @override
@@ -179,25 +172,7 @@ final class GoogleMapService extends MapService {
   @override
   Map<String, String> get queryParameters {
     final signature = signatureFunction?.call(pathAndParams);
-
-    return {
-      if (_center != null) 'center': _center!.query,
-      if (_zoom != null) 'zoom': '$_zoom',
-      'size': size.query,
-      if (scale != 1) 'scale': '$scale',
-      if (format != GoogleMapFormat.png) 'format': format.value,
-      if (maptype != GoogleMapType.roadmap) 'maptype': maptype.name,
-      'language': ?language,
-      'region': ?region,
-      'map_id': ?mapId,
-      if (_markers.isNotEmpty)
-        'markers': _markers.map((e) => e.query).join('|'),
-      if (_path.isNotEmpty) 'path': _path.query,
-      if (_viewports.isNotEmpty) 'visible': _viewports.query,
-      if (_styles.isNotEmpty) 'style': _styles.map((e) => e.query).join('|'),
-      'key': key,
-      'signature': ?signature,
-    };
+    return {..._params, 'signature': ?signature};
   }
 }
 

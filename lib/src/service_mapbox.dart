@@ -175,8 +175,8 @@ enum MapboxMarkerSize {
   medium('m'),
   large('l');
 
-  final String value;
   const MapboxMarkerSize(this.value);
+  final String value;
 }
 
 /// Path overlay

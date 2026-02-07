@@ -102,35 +102,32 @@ final class AppleMapService extends MapService {
   /// The images to display on the map
   final Set<AppleMapImage> images;
 
-  String get pathAndParams {
-    final uri = Uri(
-      path: unencodedPath,
-      queryParameters: {
-        'center': center.query,
-        'teamId': teamId,
-        'keyId': keyId,
-        if (zoom != 12) 'zoom': '$zoom',
-        if (span != null) 'span': span!.query,
-        if (size != AppleMapSize.auto) 'size': size.query,
-        if (scale != 1) 'scale': '$scale',
-        if (colorScheme != AppleMapColorScheme.light)
-          'colorScheme': colorScheme.name,
-        if (!poi) 'poi': '0',
-        if (lang != 'en-US') 'lang': lang,
-        if (annotations.isNotEmpty)
-          'annotations':
-              '[${annotations.map((annotation) => annotation.query).join(',')}]',
-        if (overlays.isNotEmpty)
-          'overlays': '[${overlays.map((overlay) => overlay.query).join(',')}]',
-        if (images.isNotEmpty)
-          'images': '[${images.map((image) => image.query).join(',')}]',
-        if (mapType != AppleMapType.standard) 't': mapType.name,
-        'referer': ?referer,
-        if (expires != null) 'expires': '$expires',
-      },
-    );
-    return uri.toString();
-  }
+  Map<String, String> get _params => {
+    'center': center.query,
+    'teamId': teamId,
+    'keyId': keyId,
+    if (zoom != 12) 'zoom': '$zoom',
+    if (span != null) 'span': span!.query,
+    if (size != AppleMapSize.auto) 'size': size.query,
+    if (scale != 1) 'scale': '$scale',
+    if (colorScheme != AppleMapColorScheme.light)
+      'colorScheme': colorScheme.name,
+    if (!poi) 'poi': '0',
+    if (lang != 'en-US') 'lang': lang,
+    if (annotations.isNotEmpty)
+      'annotations':
+          '[${annotations.map((annotation) => annotation.query).join(',')}]',
+    if (overlays.isNotEmpty)
+      'overlays': '[${overlays.map((overlay) => overlay.query).join(',')}]',
+    if (images.isNotEmpty)
+      'images': '[${images.map((image) => image.query).join(',')}]',
+    if (mapType != AppleMapType.standard) 't': mapType.name,
+    'referer': ?referer,
+    if (expires != null) 'expires': '$expires',
+  };
+
+  String get pathAndParams =>
+      Uri(path: unencodedPath, queryParameters: _params).toString();
 
   @override
   String get authority => 'snapshot.apple-mapkit.com';
@@ -141,31 +138,7 @@ final class AppleMapService extends MapService {
   @override
   Map<String, String> get queryParameters {
     final signature = signatureFunction(pathAndParams);
-
-    return {
-      'center': center.query,
-      'teamId': teamId,
-      'keyId': keyId,
-      if (zoom != 12) 'zoom': '$zoom',
-      if (span != null) 'span': span!.query,
-      if (size != AppleMapSize.auto) 'size': size.query,
-      if (scale != 1) 'scale': '$scale',
-      if (colorScheme != AppleMapColorScheme.light)
-        'colorScheme': colorScheme.name,
-      if (!poi) 'poi': '0',
-      if (lang != 'en-US') 'lang': lang,
-      if (annotations.isNotEmpty)
-        'annotations':
-            '[${annotations.map((annotation) => annotation.query).join(',')}]',
-      if (overlays.isNotEmpty)
-        'overlays': '[${overlays.map((overlay) => overlay.query).join(',')}]',
-      if (images.isNotEmpty)
-        'images': '[${images.map((image) => image.query).join(',')}]',
-      if (mapType != AppleMapType.standard) 't': mapType.name,
-      'referer': ?referer,
-      if (expires != null) 'expires': '$expires',
-      if (signature.isNotEmpty) 'signature': signature,
-    };
+    return {..._params, if (signature.isNotEmpty) 'signature': signature};
   }
 }
 
