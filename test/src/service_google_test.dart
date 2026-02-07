@@ -601,6 +601,22 @@ void main() {
       expect(params['style'], contains('|'));
     });
 
+    test('null optional parameters are omitted', () {
+      final service = GoogleMapService.center(
+        key: key,
+        center: tokyoStationLatLng,
+        zoom: zoom,
+        size: mapSize,
+        language: null,
+        region: null,
+        mapId: null,
+      );
+      final params = service.queryParameters;
+      expect(params.containsKey('language'), isFalse);
+      expect(params.containsKey('region'), isFalse);
+      expect(params.containsKey('map_id'), isFalse);
+    });
+
     test('Assertion errors', () {
       expect(
         () => GoogleMapSize(width: 0, height: 400),

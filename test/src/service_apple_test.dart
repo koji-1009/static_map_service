@@ -218,6 +218,52 @@ void main() {
       expect(annotation.query, contains('"offset": "10,20"'));
     });
 
+    test('Assertion errors for size and scale', () {
+      expect(
+        () => AppleMapSize(width: 49, height: 400),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => AppleMapSize(width: 641, height: 400),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => AppleMapService(
+          teamId: 't',
+          keyId: 'k',
+          signatureFunction: (u) => 's',
+          center: tokyoStation,
+          scale: 0,
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => AppleMapService(
+          teamId: 't',
+          keyId: 'k',
+          signatureFunction: (u) => 's',
+          center: tokyoStation,
+          scale: 4,
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test('null referer and expires are omitted', () {
+      final service = AppleMapService(
+        teamId: 't',
+        keyId: 'k',
+        signatureFunction: (u) => 's',
+        center: tokyoStation,
+        referer: null,
+        expires: null,
+      );
+
+      final url = service.url;
+      expect(url, isNot(contains('referer=')));
+      expect(url, isNot(contains('expires=')));
+    });
+
     test('AppleMapAnnotation with glyphImgIdx and imgIdx', () {
       final annotation = AppleMapAnnotation(
         point: MapLatLng(latitude: 1, longitude: 2),

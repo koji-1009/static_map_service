@@ -83,6 +83,29 @@ void main() {
       expect(service.queryParameters['before_layer'], 'water');
     });
 
+    test('map with bearing and pitch', () {
+      final service = MapboxMapService(
+        accessToken: accessToken,
+        center: center,
+        zoom: 10,
+        bearing: 45,
+        pitch: 60,
+        size: size,
+      );
+      expect(service.unencodedPath, contains(',10.0,45.0,60.0/'));
+    });
+
+    test('combined overlays', () {
+      final marker = MapboxMarker(location: center);
+      final path = MapboxPath(locations: [center]);
+      final service = MapboxMapService.auto(
+        accessToken: accessToken,
+        overlays: [marker, path],
+        size: size,
+      );
+      expect(service.unencodedPath, contains('pin-s(139.7671,35.6812),path-1.0+0000FF-1.0('));
+    });
+
     test('MapboxMarker with custom url', () {
       final marker = MapboxMarker(
         location: center,
