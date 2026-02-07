@@ -30,9 +30,8 @@ void main() {
     test('auto viewport with markers', () {
       final marker = MapboxMarker(location: center, label: 'a', color: 'f00');
 
-      final service = MapboxMapService(
+      final service = MapboxMapService.auto(
         accessToken: accessToken,
-        auto: true,
         overlays: [marker],
         size: size,
       );
@@ -54,9 +53,8 @@ void main() {
         strokeColor: 'f00',
       );
 
-      final service = MapboxMapService(
+      final service = MapboxMapService.auto(
         accessToken: accessToken,
-        auto: true,
         overlays: [path],
         size: size,
       );
