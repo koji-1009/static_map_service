@@ -5,9 +5,10 @@ This document provides context and guidelines for AI agents working on the `stat
 ## Project Overview
 
 `static_map_service` is a Dart package designed to generate URLs for static map images from various providers, currently supporting:
-- Google Maps Static API
-- Apple Maps Web Snapshots
-- Mapbox Static Images API
+
+* Google Maps Static API
+* Apple Maps Web Snapshots
+* Mapbox Static Images API
 
 The goal is to provide a type-safe, easy-to-use interface for constructing these URLs, handling parameters like center location, zoom level, map size, markers, paths, and overlays.
 
@@ -15,35 +16,35 @@ The goal is to provide a type-safe, easy-to-use interface for constructing these
 
 The project follows a simple architecture:
 
-- **`MapService` (Abstract Base Class):** Defines the common interface for all map services (`authority`, `unencodedPath`, `queryParameters`, `url`).
-- **`GoogleMapService`:** Implements `MapService` for Google Maps. It uses factory constructors (`.center`, `.markers`, `.path`) to handle different usage patterns enforced by the API. Supports Encoded Polyline for efficient path representation.
-- **`AppleMapService`:** Implements `MapService` for Apple Maps.
-- **`MapboxMapService`:** Implements `MapService` for Mapbox, supporting styles, markers, paths, and GeoJSON overlays.
-- **`Shared Objects`:** Common value objects like `MapLatLng`, `MapAddress`, etc., are defined in `src/shared.dart`.
-- **`Utils`:** Utility functions like Encoded Polyline Algorithm implementation in `src/utils.dart`.
+* **`MapService` (Abstract Base Class):** Defines the common interface for all map services (`authority`, `unencodedPath`, `queryParameters`, `url`).
+* **`GoogleMapService`:** Implements `MapService` for Google Maps. It uses factory constructors (`.center`, `.markers`, `.path`) to handle different usage patterns enforced by the API. Supports Encoded Polyline for efficient path representation.
+* **`AppleMapService`:** Implements `MapService` for Apple Maps.
+* **`MapboxMapService`:** Implements `MapService` for Mapbox, supporting styles, markers, paths, and GeoJSON overlays.
+* **`Shared Objects`:** Common value objects like `MapLatLng`, `MapAddress`, etc., are defined in `src/shared.dart`.
+* **`Utils`:** Utility functions like Encoded Polyline Algorithm implementation in `src/utils.dart`.
 
 ## Directory Structure
 
-- `lib/`: Source code.
-  - `static_map_service.dart`: Main entry point.
-  - `src/`: Internal implementation.
-    - `service.dart`: Base class.
-    - `service_google.dart`: Google Maps impl.
-    - `service_apple.dart`: Apple Maps impl.
-    - `service_mapbox.dart`: Mapbox impl.
-    - `shared.dart`: Shared types.
-    - `utils.dart`: Utilities.
-- `test/`: Tests.
+* `lib/`: Source code.
+  * `static_map_service.dart`: Main entry point.
+  * `src/`: Internal implementation.
+    * `service.dart`: Base class.
+    * `service_google.dart`: Google Maps impl.
+    * `service_apple.dart`: Apple Maps impl.
+    * `service_mapbox.dart`: Mapbox impl.
+    * `shared.dart`: Shared types.
+    * `utils.dart`: Utilities.
+* `test/`: Tests.
 
 ## Development Guidelines
 
-1.  **Type Safety:** Use Dart's type system to enforce valid parameters.
-2.  **Immutability:** All service classes and value objects should be immutable.
-3.  **Testing:** Every feature must be tested.
-4.  **Linting:** Follow `analysis_options.yaml`.
-5.  **Documentation:** Document public APIs clearly.
+1. **Type Safety:** Use Dart's type system to enforce valid parameters.
+2. **Immutability:** All service classes and value objects should be immutable.
+3. **Testing:** Every feature must be tested.
+4. **Linting:** Follow `analysis_options.yaml`.
+5. **Documentation:** Document public APIs clearly.
 
 ## Current Tasks
 
-1.  Expand test coverage for complex overlays.
-2.  Create an `example` project.
+1. Expand test coverage for complex overlays.
+2. Create an `example` project.
