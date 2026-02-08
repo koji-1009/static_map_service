@@ -140,7 +140,7 @@ final class GoogleMapService extends MapService {
   /// see [https://developers.google.com/maps/documentation/maps-static/styling]
   final Set<GoogleMapStyle> _styles;
 
-  Map<String, String> get _params => {
+  Map<String, dynamic> get _params => {
     if (_center != null) 'center': _center!.query,
     if (_zoom != null) 'zoom': '$_zoom',
     'size': size.query,
@@ -150,10 +150,10 @@ final class GoogleMapService extends MapService {
     'language': ?language,
     'region': ?region,
     'map_id': ?mapId,
-    if (_markers.isNotEmpty) 'markers': _markers.map((e) => e.query).join('|'),
+    if (_markers.isNotEmpty) 'markers': _markers.map((e) => e.query),
     if (_path.isNotEmpty) 'path': _path.query,
     if (_viewports.isNotEmpty) 'visible': _viewports.query,
-    if (_styles.isNotEmpty) 'style': _styles.map((e) => e.query).join('|'),
+    if (_styles.isNotEmpty) 'style': _styles.map((e) => e.query),
     'key': key,
   };
 
@@ -170,7 +170,7 @@ final class GoogleMapService extends MapService {
   String get unencodedPath => '/maps/api/staticmap';
 
   @override
-  Map<String, String> get queryParameters {
+  Map<String, dynamic> get queryParameters {
     final signature = signatureFunction?.call(pathAndParams);
     return {..._params, 'signature': ?signature};
   }

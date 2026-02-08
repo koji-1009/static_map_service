@@ -597,8 +597,14 @@ void main() {
       );
 
       final params = service.queryParameters;
-      expect(params['markers'], contains('|'));
-      expect(params['style'], contains('|'));
+      expect(params['markers'], isA<Iterable<String>>());
+      expect((params['markers'] as Iterable).length, 2);
+      expect(params['style'], isA<Iterable<String>>());
+      expect((params['style'] as Iterable).length, 2);
+
+      final url = service.url;
+      expect(url, contains('markers=label%3A1%7C35.6812%2C139.7671'));
+      expect(url, contains('markers=label%3A2%7C35.6812%2C139.7671'));
     });
 
     test('null optional parameters are omitted', () {

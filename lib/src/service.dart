@@ -9,7 +9,7 @@ abstract base class MapService {
   String get unencodedPath;
 
   /// The query parameters of the map service
-  Map<String, String> get queryParameters;
+  Map<String, dynamic> get queryParameters;
 
   /// [Uri] of the map service
   Uri get uri => Uri.https(authority, unencodedPath, queryParameters);
