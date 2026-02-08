@@ -2,8 +2,9 @@ import 'package:static_map_service/src/shared.dart';
 
 /// Encodes a list of [MapLatLng] into an encoded path string.
 ///
-/// Implements the Encoded Polyline Algorithm Format.
-/// https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+/// Implements the [Encoded Polyline Algorithm Format](https://developers.google.com/maps/documentation/utilities/polylinealgorithm).
+/// This format is a lossy compression algorithm that allows you to store
+/// a series of coordinates as a single string.
 String encodePolyline(List<MapLatLng> locations) {
   final result = StringBuffer();
 

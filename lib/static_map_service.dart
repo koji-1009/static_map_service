@@ -1,6 +1,9 @@
-/// A Dart package for generating static map images url from Google Maps, Apple Snapshots, and Mapbox Static Images.
+/// A type-safe Dart package for generating static map image URLs.
 ///
-/// This package provides a type-safe interface to construct URLs for static maps.
+/// Currently supports:
+/// * Google Maps Static API
+/// * Apple Maps Web Snapshots
+/// * Mapbox Static Images API
 ///
 /// Example:
 /// ```dart
