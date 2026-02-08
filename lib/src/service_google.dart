@@ -140,30 +140,26 @@ final class GoogleMapService extends MapService {
   /// see [https://developers.google.com/maps/documentation/maps-static/styling]
   final Set<GoogleMapStyle> _styles;
 
+  Map<String, dynamic> get _params => {
+    if (_center != null) 'center': _center!.query,
+    if (_zoom != null) 'zoom': '$_zoom',
+    'size': size.query,
+    if (scale != 1) 'scale': '$scale',
+    if (format != GoogleMapFormat.png) 'format': format.value,
+    if (maptype != GoogleMapType.roadmap) 'maptype': maptype.name,
+    'language': ?language,
+    'region': ?region,
+    'map_id': ?mapId,
+    if (_markers.isNotEmpty) 'markers': _markers.map((e) => e.query),
+    if (_path.isNotEmpty) 'path': _path.query,
+    if (_viewports.isNotEmpty) 'visible': _viewports.query,
+    if (_styles.isNotEmpty) 'style': _styles.map((e) => e.query),
+    'key': key,
+  };
+
   /// The path and parameters for [signatureFunction]
   String get pathAndParams {
-    final uri = Uri(
-      path: unencodedPath,
-      queryParameters: {
-        if (_center != null) 'center': _center!.query,
-        if (_zoom != null) 'zoom': '$_zoom',
-        'size': size.query,
-        if (scale != 1) 'scale': '$scale',
-        if (format != GoogleMapFormat.png) 'format': format.value,
-        if (maptype != GoogleMapType.roadmap) 'maptype': maptype.name,
-        'language': ?language,
-        'region': ?region,
-        'map_id': ?mapId,
-        if (_markers.isNotEmpty)
-          for (final marker in _markers) 'markers': marker.query,
-        if (_path.isNotEmpty) 'path': _path.query,
-        if (_viewports.isNotEmpty) 'visible': _viewports.query,
-        if (_styles.isNotEmpty)
-          for (final style in _styles) 'style': style.query,
-        'key': key,
-      },
-    );
-
+    final uri = Uri(path: unencodedPath, queryParameters: _params);
     return uri.toString();
   }
 
@@ -174,26 +170,9 @@ final class GoogleMapService extends MapService {
   String get unencodedPath => '/maps/api/staticmap';
 
   @override
-  Map<String, String> get queryParameters {
-    final signature = signatureFunction?.call(pathAndParams) ?? '';
-
-    return {
-      if (_center != null) 'center': _center!.query,
-      if (_zoom != null) 'zoom': '$_zoom',
-      'size': size.query,
-      if (scale != 1) 'scale': '$scale',
-      if (format != GoogleMapFormat.png) 'format': format.name,
-      if (maptype != GoogleMapType.roadmap) 'maptype': maptype.name,
-      'language': ?language,
-      'region': ?region,
-      'map_id': ?mapId,
-      if (_markers.isNotEmpty)
-        for (final marker in _markers) 'markers': marker.query,
-      if (_path.isNotEmpty) 'path': _path.query,
-      if (_viewports.isNotEmpty) 'visible': _viewports.query,
-      'key': key,
-      if (signature.isNotEmpty) 'signature': signature,
-    };
+  Map<String, dynamic> get queryParameters {
+    final signature = signatureFunction?.call(pathAndParams);
+    return {..._params, 'signature': ?signature};
   }
 }
 
@@ -259,8 +238,8 @@ extension type const GoogleMapPath._(String query) {
   }) => GoogleMapPath._(
     [
       if (weight != null) 'weight:$weight',
-      if (color != null) 'color:${color?.name}',
-      if (fillColor != null) 'fillcolor:${fillColor?.name}',
+      if (color != null) 'color:${color.name}',
+      if (fillColor != null) 'fillcolor:${fillColor.name}',
       if (geodesic) 'geodesic:true',
       ...locations.map((e) => e.query),
     ].join('|'),
@@ -272,15 +251,16 @@ extension type const GoogleMapPath._(String query) {
     GoogleMapColor? color,
     GoogleMapColor? fillColor,
     bool geodesic = false,
-  }) => GoogleMapPath._(
-    [
+  }) {
+    final List<String> parts = [
       if (weight != null) 'weight:$weight',
-      if (color != null) 'color:${color?.name}',
-      if (fillColor != null) 'fillcolor:${fillColor?.name}',
+      if (color != null) 'color:${color.name}',
+      if (fillColor != null) 'fillcolor:${fillColor.name}',
       if (geodesic) 'geodesic:true',
       'enc:${encodePolyline(locations)}',
-    ].join('|'),
-  );
+    ];
+    return GoogleMapPath._(parts.join('|'));
+  }
 
   static const _empty = GoogleMapPath._('');
 

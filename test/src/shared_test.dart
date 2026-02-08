@@ -10,26 +10,27 @@ void main() {
       );
     });
 
-    test('failure case', () {
+    test('clipping case', () {
       expect(
-        () => MapLatLng(latitude: 91, longitude: 0),
-        throwsA(isA<AssertionError>()),
+        MapLatLng(latitude: 100, longitude: 200).query,
+        '90.0000,180.0000',
       );
+      expect(
+        MapLatLng(latitude: -100, longitude: -200).query,
+        '-90.0000,-180.0000',
+      );
+    });
 
-      expect(
-        () => MapLatLng(latitude: -91, longitude: 0),
-        throwsA(isA<AssertionError>()),
-      );
+    test('getters', () {
+      final latLng = MapLatLng(latitude: 35.6812, longitude: 139.7671);
+      expect(latLng.latitude, 35.6812);
+      expect(latLng.longitude, 139.7671);
+    });
+  });
 
-      expect(
-        () => MapLatLng(latitude: 0, longitude: 181),
-        throwsA(isA<AssertionError>()),
-      );
-
-      expect(
-        () => MapLatLng(latitude: 0, longitude: -181),
-        throwsA(isA<AssertionError>()),
-      );
+  group('A group of MapLocation', () {
+    test('query', () {
+      expect(const MapLocation('test').query, 'test');
     });
   });
 

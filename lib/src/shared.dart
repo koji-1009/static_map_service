@@ -3,8 +3,6 @@ extension type const MapLocation(String query) {}
 
 extension type const MapLatLng._(String query) implements MapLocation {
   factory MapLatLng({required double latitude, required double longitude}) {
-    assert(latitude >= -90 && latitude <= 90);
-    assert(longitude >= -180 && longitude <= 180);
     final lat = latitude < -90
         ? -90
         : latitude > 90

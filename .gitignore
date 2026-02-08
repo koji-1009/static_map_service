@@ -9,3 +9,6 @@ pubspec.lock
 # IDE files
 .idea
 .vscode
+
+# Coverage directory
+coverage/
