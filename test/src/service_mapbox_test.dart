@@ -103,7 +103,10 @@ void main() {
         overlays: [marker, path],
         size: size,
       );
-      expect(service.unencodedPath, contains('pin-s(139.7671,35.6812),path-1.0+0000FF-1.0('));
+      expect(
+        service.unencodedPath,
+        contains('pin-s(139.7671,35.6812),path-1.0+0000FF-1.0('),
+      );
     });
 
     test('MapboxMarker with custom url', () {
