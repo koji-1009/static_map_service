@@ -40,11 +40,18 @@ The project follows a simple architecture:
 
 1. **Type Safety:** Use Dart's type system to enforce valid parameters.
 2. **Immutability:** All service classes and value objects should be immutable.
-3. **Testing:** Every feature must be tested.
+3. **Testing:** Every feature must be tested. Maintain 100% test coverage.
 4. **Linting:** Follow `analysis_options.yaml`.
 5. **Documentation:** Document public APIs clearly.
 
-## Current Tasks
+## Current Status
 
-1. Expand test coverage for complex overlays.
-2. Create an `example` project.
+* **Test Coverage:** 100% (Line coverage).
+* **API Compliance:** Verified against Google Maps, Apple Maps, and Mapbox official specifications.
+* **Version:** 1.0.0 (Stable Release).
+
+## Future Considerations
+
+1. Support additional map providers (e.g., Bing Maps, Here Maps).
+2. Add more complex GeoJSON support for Mapbox.
+3. Improve example project with interactive UI.

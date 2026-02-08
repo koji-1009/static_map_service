@@ -1,7 +1,7 @@
 # static_map_service
 
 [![pub package](https://img.shields.io/pub/v/static_map_service.svg)](https://pub.dev/packages/static_map_service)
-[![CI](https://github.com/koji-1009/static_map_service/actions/workflows/analyze.yaml/badge.svg)](https://github.com/koji-1009/static_map_service/actions/workflows/analyze.yaml)
+[![analyze](https://github.com/koji-1009/static_map_service/actions/workflows/analyze.yaml/badge.svg)](https://github.com/koji-1009/static_map_service/actions/workflows/analyze.yaml)
 [![codecov](https://codecov.io/gh/koji-1009/static_map_service/branch/main/graph/badge.svg)](https://codecov.io/gh/koji-1009/static_map_service)
 
 A Dart package for generating static map images url from Google Maps, Apple Snapshots, and Mapbox Static Images.
@@ -13,15 +13,6 @@ Generate static map images url from various providers.
 * [Google Static Map API](https://developers.google.com/maps/documentation/maps-static/overview)
 * [Apple Maps Web Snapshots](https://developer.apple.com/documentation/snapshots)
 * [Mapbox Static Images API](https://docs.mapbox.com/api/maps/static-images/)
-
-## Installation
-
-Add this to your package's `pubspec.yaml` file:
-
-```yaml
-dependencies:
-  static_map_service: ^0.0.3
-```
 
 ## Usage
 
@@ -137,9 +128,8 @@ void main() {
 #### Mapbox Overlays
 
 ```dart
-final url = MapboxMapService(
+final url = MapboxMapService.auto(
   accessToken: 'your_access_token',
-  auto: true, // Automatically fit bounds to overlays
   overlays: [
     MapboxMarker(
       location: MapLatLng(latitude: 37.7749, longitude: -122.4194),
