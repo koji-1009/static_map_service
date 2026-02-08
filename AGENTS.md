@@ -48,10 +48,8 @@ The project follows a simple architecture:
 
 * **Test Coverage:** 100% (Line coverage).
 * **API Compliance:** Verified against Google Maps, Apple Maps, and Mapbox official specifications.
-* **Version:** 1.0.0 (Stable Release).
 
 ## Future Considerations
 
 1. Support additional map providers (e.g., Bing Maps, Here Maps).
 2. Add more complex GeoJSON support for Mapbox.
-3. Improve example project with interactive UI.
