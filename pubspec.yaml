@@ -18,3 +18,4 @@ dev_dependencies:
   lints: ^6.0.0
   test: ^1.27.0
   coverage: ^1.14.0
+  dapper: ^1.4.0
