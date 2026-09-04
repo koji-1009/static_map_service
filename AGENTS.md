@@ -46,8 +46,8 @@ The project follows a simple architecture:
 
 ## Current Status
 
-* **Test Coverage:** 100% (Line coverage).
-* **API Compliance:** Verified against Google Maps, Apple Maps, and Mapbox official specifications.
+* **Test Coverage:** 100% (Line coverage). `extension type const` constructors are only covered when invoked without `const`, which `test/src/const_constructors_test.dart` does.
+* **API Compliance:** Parameter names, separators and value formats are verified against the Google Maps, Apple Maps, and Mapbox official specifications. Two points remain unverified: whether Google accepts `hue:#RRGGBB` / `color:#RRGGBB` (the styling docs say `#RRGGBB` but every example uses `0xRRGGBB`), and whether Mapbox accepts `0.0`-style decimals for `bearing` / `pitch`.
 
 ## Future Considerations
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:static_map_service/src/service.dart';
 import 'package:static_map_service/src/shared.dart';
 
@@ -110,8 +112,8 @@ final class AppleMapService extends MapService {
     'center': center.query,
     'teamId': teamId,
     'keyId': keyId,
-    if (zoom != 12) 'zoom': '$zoom',
-    if (span != null) 'span': span!.query,
+    if (zoom != 12) 'z': '$zoom',
+    if (span != null) 'spn': span!.query,
     if (size != AppleMapSize.auto) 'size': size.query,
     if (scale != 1) 'scale': '$scale',
     if (colorScheme != AppleMapColorScheme.light)
@@ -124,7 +126,7 @@ final class AppleMapService extends MapService {
     if (overlays.isNotEmpty)
       'overlays': '[${overlays.map((overlay) => overlay.query).join(',')}]',
     if (images.isNotEmpty)
-      'images': '[${images.map((image) => image.query).join(',')}]',
+      'imgs': '[${images.map((image) => image.query).join(',')}]',
     if (mapType != AppleMapType.standard) 't': mapType.name,
     'referer': ?referer,
     if (expires != null) 'expires': '$expires',
@@ -165,7 +167,7 @@ extension type const AppleMapSize._(String query) {
     assert(width >= 50 && width <= 640);
     assert(height >= 50 && height <= 640);
 
-    return AppleMapSize._('$width,$height');
+    return AppleMapSize._('${width}x$height');
   }
 
   /// The default size (600x400).
@@ -201,20 +203,18 @@ extension type const AppleMapAnnotation._(String query) {
 
     /// An optional offset in scale independent pixels from the bottom center.
     AppleMapAnnotationOffset? offset,
-  }) {
-    final parts = [
-      '"point": "${point.query}"',
-      '"markerStyle": "${markerStyle.name}"',
-      if (color != null) '"color": "${color.color}"',
-      if (glyphColor != null) '"glyphColor": "${glyphColor.color}"',
-      if (glyphImgIdx != null) '"glyphImgIdx": $glyphImgIdx',
-      if (glyphText != null) '"glyphText": "$glyphText"',
-      if (imgIdx != null) '"imgIdx": $imgIdx',
-      if (offset != null) '"offset": "${offset.query}"',
-    ];
-
-    return AppleMapAnnotation._('{${parts.join(',')}}');
-  }
+  }) => AppleMapAnnotation._(
+    jsonEncode({
+      'point': point.query,
+      'markerStyle': markerStyle.name,
+      'color': ?color?.color,
+      'glyphColor': ?glyphColor?.color,
+      'glyphImgIdx': ?glyphImgIdx,
+      'glyphText': ?glyphText,
+      'imgIdx': ?imgIdx,
+      'offset': ?offset?.query,
+    }),
+  );
 }
 
 /// The style of the annotation.
@@ -239,26 +239,27 @@ extension type const AppleMapOverlay._(String query) {
   /// Creates an [AppleMapOverlay].
   ///
   /// [points] is a string representation of coordinate points.
+  ///
+  /// [lineWidth], [lineDashOffset] and [lineDash] are integers, as required by
+  /// the [Overlay](https://developer.apple.com/documentation/snapshots/overlay)
+  /// specification.
   factory AppleMapOverlay({
     required String points,
     String? strokeColor,
-    double? lineWidth,
-    double? lineDashPhase,
-    List<double>? lineDashPattern,
+    int? lineWidth,
+    int? lineDashOffset,
+    List<int>? lineDash,
     String? fillColor,
-  }) {
-    final parts = [
-      '"points": "$points"',
-      if (strokeColor != null) '"strokeColor": "$strokeColor"',
-      if (lineWidth != null) '"lineWidth": $lineWidth',
-      if (lineDashPhase != null) '"lineDashPhase": $lineDashPhase',
-      if (lineDashPattern != null)
-        '"lineDashPattern": [${lineDashPattern.join(',')}]',
-      if (fillColor != null) '"fillColor": "$fillColor"',
-    ];
-
-    return AppleMapOverlay._('{${parts.join(',')}}');
-  }
+  }) => AppleMapOverlay._(
+    jsonEncode({
+      'points': points,
+      'strokeColor': ?strokeColor,
+      'lineWidth': ?lineWidth,
+      'lineDashOffset': ?lineDashOffset,
+      'lineDash': ?lineDash,
+      'fillColor': ?fillColor,
+    }),
+  );
 }
 
 /// An image to display on the map.
@@ -266,13 +267,8 @@ extension type const AppleMapOverlay._(String query) {
 /// See: [Apple Maps Image](https://developer.apple.com/documentation/snapshots/image)
 extension type const AppleMapImage._(String query) {
   /// Creates an [AppleMapImage].
-  factory AppleMapImage({required String url, int? height, int? width}) {
-    final parts = [
-      '"url": "$url"',
-      if (height != null) '"height": $height',
-      if (width != null) '"width": $width',
-    ];
-
-    return AppleMapImage._('{${parts.join(',')}}');
-  }
+  factory AppleMapImage({required String url, int? height, int? width}) =>
+      AppleMapImage._(
+        jsonEncode({'url': url, 'height': ?height, 'width': ?width}),
+      );
 }

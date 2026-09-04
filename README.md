@@ -22,7 +22,7 @@ Generate static map images url from various providers.
 import 'package:static_map_service/static_map_service.dart';
 
 void main() {
-  const url = GoogleMapService.center(
+  final url = GoogleMapService.center(
     key: 'your_api_key',
     center: MapLatLng(
       latitude: 37.7749,

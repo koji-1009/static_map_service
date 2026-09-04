@@ -27,7 +27,10 @@ final class MapboxMapService extends MapService {
     this.beforeLayer,
   }) : _center = center,
        _zoom = zoom,
-       _auto = false;
+       _auto = false,
+       // `padding` can only be used with `auto` or `bbox`.
+       // See https://docs.mapbox.com/api/maps/static-images/
+       assert(padding == null);
 
   /// Creates a [MapboxMapService] that automatically fits the map to the
   /// provided [overlays].
@@ -88,6 +91,8 @@ final class MapboxMapService extends MapService {
   final bool attribution;
 
   /// Padding around the auto-scaled map (e.g., '10,10,10,10').
+  ///
+  /// Only available on [MapboxMapService.auto].
   final String? padding;
 
   /// The ID of the layer to insert the overlay before.
@@ -96,6 +101,11 @@ final class MapboxMapService extends MapService {
   @override
   String get authority => 'api.mapbox.com';
 
+  /// The path of the map service.
+  ///
+  /// Overlays embed values that are already percent-encoded (encoded polylines,
+  /// GeoJSON, custom marker URLs), so this path must not be encoded again.
+  /// [uri] is overridden accordingly.
   @override
   String get unencodedPath {
     final buffer = StringBuffer('/styles/v1/$username/$styleId/static');
@@ -130,6 +140,11 @@ final class MapboxMapService extends MapService {
     'padding': ?padding,
     'before_layer': ?beforeLayer,
   };
+
+  @override
+  Uri get uri => Uri.parse(
+    'https://$authority$unencodedPath',
+  ).replace(queryParameters: queryParameters);
 }
 
 /// The size of the Mapbox map image in pixels.
@@ -177,6 +192,12 @@ extension type const MapboxMarker._(String query) implements MapboxMapOverlay {
 /// Marker size presets for Mapbox.
 enum MapboxMarkerSize {
   small('s'),
+
+  /// `pin-m` is not listed by the Mapbox Static Images API, which documents
+  /// `pin-s` and `pin-l` only.
+  ///
+  /// See https://docs.mapbox.com/api/maps/static-images/
+  @Deprecated('Not part of the Mapbox specification. Use small or large.')
   medium('m'),
   large('l');
 

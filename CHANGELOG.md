@@ -1,3 +1,30 @@
+## 1.1.0
+
+### Fixes
+
+* **Apple Maps**: Rename query parameters to `z`, `spn` and `imgs` to conform to the Web Snapshots specification.
+* **Apple Maps**: Fix `AppleMapSize` to separate width and height with `x`.
+* **Apple Maps**: Fix `AppleMapOverlay` to emit `lineDashOffset` and `lineDash` as integers.
+* **Apple Maps**: Build `annotations`, `overlays` and `imgs` with `jsonEncode` to escape special characters.
+* **Google Maps**: Fix `GoogleMapFeatureLandscape` to use a dot separator for sub-types.
+* **Mapbox**: Fix double percent-encoding of overlays in the generated URL.
+* **Mapbox**: Reject `padding` outside `MapboxMapService.auto`.
+* Fix `MapLatLng` to keep 6 decimal places and to treat `NaN` as `0`.
+
+### Breaking Change
+
+* **Apple Maps**: Rename `AppleMapOverlay` parameters `lineDashPhase` to `lineDashOffset` and `lineDashPattern` to `lineDash`. Both now take `int` instead of `double`.
+
+### Deprecations
+
+* **Mapbox**: Deprecate `MapboxMarkerSize.medium`, which is not part of the specification.
+
+### Refactoring & Others
+
+* Add regression tests for the generated `url` of each service.
+* Fix the example in `README.md`.
+* Update `AGENTS.md`.
+
 ## 1.0.0
 
 ### Features
