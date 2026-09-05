@@ -64,10 +64,9 @@ void main() {
     });
 
     test('optional parameters', () {
-      final service = MapboxMapService(
+      final service = MapboxMapService.auto(
         accessToken: accessToken,
-        center: center,
-        zoom: 10,
+        overlays: [MapboxMarker(location: center)],
         size: size,
         retina: true,
         logo: false,
@@ -155,6 +154,141 @@ void main() {
         () => MapboxMapSize(width: 0, height: 300),
         throwsA(isA<AssertionError>()),
       );
+      expect(
+        () => MapboxMapSize(width: 1281, height: 300),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => MapboxMapSize(width: 400, height: 0),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => MapboxMapSize(width: 400, height: 1281),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+  });
+
+  group('MapboxMapService url encoding', () {
+    const accessToken = 'token';
+    final center = MapLatLng(latitude: 35.6812, longitude: 139.7671);
+    final size = MapboxMapSize(width: 400, height: 300);
+
+    test('encoded polyline is percent-encoded exactly once', () {
+      final service = MapboxMapService.auto(
+        accessToken: accessToken,
+        overlays: [
+          MapboxPath(
+            locations: [
+              MapLatLng(latitude: 38.5, longitude: -120.2),
+              MapLatLng(latitude: 40.7, longitude: -120.95),
+              MapLatLng(latitude: 43.252, longitude: -126.453),
+            ],
+          ),
+        ],
+        size: size,
+      );
+
+      expect(
+        service.url,
+        'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/'
+        'path-1.0+0000FF-1.0(_p~iF~ps%7CU_ulLnnqC_mqNvxq%60%40)'
+        '/auto/400x300?access_token=token',
+      );
+      expect(service.url, isNot(contains('%25')));
+    });
+
+    test('GeoJSON overlay is percent-encoded exactly once', () {
+      final service = MapboxMapService.auto(
+        accessToken: accessToken,
+        overlays: [MapboxGeoJson(geoJson: '{"type":"Point"}')],
+        size: size,
+      );
+
+      expect(
+        service.url,
+        'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/'
+        'geojson(%7B%22type%22%3A%22Point%22%7D)'
+        '/auto/400x300?access_token=token',
+      );
+      expect(service.url, isNot(contains('%25')));
+    });
+
+    test('custom marker url is percent-encoded exactly once', () {
+      final service = MapboxMapService.auto(
+        accessToken: accessToken,
+        overlays: [
+          MapboxMarker(location: center, url: 'http://example.com/icon.png'),
+        ],
+        size: size,
+      );
+
+      expect(
+        service.url,
+        'https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/'
+        'url-http%3A%2F%2Fexample.com%2Ficon.png(139.7671,35.6812)'
+        '/auto/400x300?access_token=token',
+      );
+      expect(service.url, isNot(contains('%25')));
+    });
+
+    test('uri round-trips through Uri.parse without altering the path', () {
+      final service = MapboxMapService.auto(
+        accessToken: accessToken,
+        overlays: [MapboxGeoJson(geoJson: '{"type":"Point"}')],
+        size: size,
+        retina: true,
+      );
+
+      expect(service.uri.path, service.unencodedPath);
+      expect(Uri.parse(service.url), service.uri);
+    });
+
+    test('query parameters are still encoded', () {
+      final service = MapboxMapService(
+        accessToken: 'a b+c',
+        center: center,
+        zoom: 10,
+        size: size,
+      );
+
+      expect(service.url, endsWith('?access_token=a+b%2Bc'));
+    });
+  });
+
+  group('MapboxMapService specification compliance', () {
+    const accessToken = 'token';
+    final center = MapLatLng(latitude: 35.6812, longitude: 139.7671);
+    final size = MapboxMapSize(width: 400, height: 300);
+
+    test('padding is rejected outside the auto constructor', () {
+      // `padding` can only be used with `auto` or `bbox`.
+      expect(
+        () => MapboxMapService(
+          accessToken: accessToken,
+          center: center,
+          zoom: 10,
+          size: size,
+          padding: '10',
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test('padding is allowed on the auto constructor', () {
+      final service = MapboxMapService.auto(
+        accessToken: accessToken,
+        overlays: [MapboxMarker(location: center)],
+        size: size,
+        padding: '10',
+      );
+
+      expect(service.queryParameters['padding'], '10');
+    });
+
+    test('documented marker sizes are pin-s and pin-l', () {
+      expect(MapboxMarkerSize.small.value, 's');
+      expect(MapboxMarkerSize.large.value, 'l');
     });
   });
 }

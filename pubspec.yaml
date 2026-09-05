@@ -1,6 +1,6 @@
 name: static_map_service
 description: A type-safe Dart package for generating static map image URLs from Google Maps, Apple Maps, and Mapbox.
-version: 1.0.0
+version: 1.1.0
 repository: https://github.com/koji-1009/static_map_service
 issue_tracker: https://github.com/koji-1009/static_map_service/issues
 

@@ -10,6 +10,9 @@ abstract base class MapService {
   String get authority;
 
   /// The unencoded path of the map service (e.g., `/maps/api/staticmap`).
+  ///
+  /// The default [uri] percent-encodes this value. A service whose path must
+  /// carry pre-encoded segments has to override [uri] instead.
   String get unencodedPath;
 
   /// The query parameters for the map service.

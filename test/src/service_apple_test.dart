@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:static_map_service/src/service_apple.dart';
 import 'package:static_map_service/src/shared.dart';
 import 'package:test/test.dart';
@@ -54,15 +56,11 @@ void main() {
 
       expect(
         params['overlays'],
-        contains(
-          '"points": "[[139.7,35.6],[139.8,35.7]]","strokeColor": "red","lineWidth": 2.0',
-        ),
+        '[{"points":"[[139.7,35.6],[139.8,35.7]]","strokeColor":"red","lineWidth":2}]',
       );
       expect(
-        params['images'],
-        contains(
-          '"url": "http://example.com/image.png","height": 32,"width": 32',
-        ),
+        params['imgs'],
+        '[{"url":"http://example.com/image.png","height":32,"width":32}]',
       );
     });
 
@@ -77,8 +75,8 @@ void main() {
             points: 'points_data',
             strokeColor: 'blue',
             lineWidth: 3,
-            lineDashPhase: 1,
-            lineDashPattern: [2, 3],
+            lineDashOffset: 1,
+            lineDash: [2, 3],
             fillColor: 'green',
           ),
         },
@@ -89,9 +87,8 @@ void main() {
 
       expect(
         params['overlays'],
-        contains(
-          '"points": "points_data","strokeColor": "blue","lineWidth": 3.0,"lineDashPhase": 1.0,"lineDashPattern": [2.0,3.0],"fillColor": "green"',
-        ),
+        '[{"points":"points_data","strokeColor":"blue","lineWidth":3,'
+        '"lineDashOffset":1,"lineDash":[2,3],"fillColor":"green"}]',
       );
     });
 
@@ -99,20 +96,17 @@ void main() {
       final annotation = AppleMapAnnotation(
         point: MapLatLng(latitude: 0, longitude: 0),
       );
-      expect(
-        annotation.query,
-        '{"point": "0.0000,0.0000","markerStyle": "balloon"}',
-      );
+      expect(annotation.query, '{"point":"0,0","markerStyle":"balloon"}');
     });
 
     test('AppleMapOverlay minimal', () {
       final overlay = AppleMapOverlay(points: 'minimal');
-      expect(overlay.query, '{"points": "minimal"}');
+      expect(overlay.query, '{"points":"minimal"}');
     });
 
     test('AppleMapImage minimal', () {
       final image = AppleMapImage(url: 'url');
-      expect(image.query, '{"url": "url"}');
+      expect(image.query, '{"url":"url"}');
     });
 
     test('AppleMapService.auto all parameters', () {
@@ -133,7 +127,7 @@ void main() {
       final uri = Uri.parse('https://example.com${service.pathAndParams}');
       expect(uri.queryParameters['annotations'], isNotNull);
       expect(uri.queryParameters['overlays'], isNotNull);
-      expect(uri.queryParameters['images'], isNotNull);
+      expect(uri.queryParameters['imgs'], isNotNull);
       expect(uri.queryParameters['lang'], 'ja');
     });
 
@@ -146,7 +140,7 @@ void main() {
         // zoom: 12, size: auto, scale: 1, poi: true, lang: en-US, mapType: standard are defaults
       );
       final url = service.url;
-      expect(url, isNot(contains('zoom=')));
+      expect(url, isNot(contains('z=')));
       expect(url, isNot(contains('size=')));
       expect(url, isNot(contains('scale=')));
       expect(url, isNot(contains('poi=')));
@@ -176,9 +170,9 @@ void main() {
       final params = uri.queryParameters;
 
       expect(params['center'], 'San Francisco');
-      expect(params['zoom'], '15');
-      expect(params['span'], '0.0100,0.0100');
-      expect(params['size'], '500,300');
+      expect(params['z'], '15');
+      expect(params['spn'], '0.01,0.01');
+      expect(params['size'], '500x300');
       expect(params['scale'], '2');
       expect(params['t'], 'satellite');
       expect(params['colorScheme'], 'dark');
@@ -211,11 +205,11 @@ void main() {
         offset: AppleMapAnnotationOffset(x: 10, y: 20),
       );
 
-      expect(annotation.query, contains('"markerStyle": "large"'));
-      expect(annotation.query, contains('"color": "red"'));
-      expect(annotation.query, contains('"glyphColor": "white"'));
-      expect(annotation.query, contains('"glyphText": "A"'));
-      expect(annotation.query, contains('"offset": "10,20"'));
+      expect(annotation.query, contains('"markerStyle":"large"'));
+      expect(annotation.query, contains('"color":"red"'));
+      expect(annotation.query, contains('"glyphColor":"white"'));
+      expect(annotation.query, contains('"glyphText":"A"'));
+      expect(annotation.query, contains('"offset":"10,20"'));
     });
 
     test('Assertion errors for size and scale', () {
@@ -225,6 +219,14 @@ void main() {
       );
       expect(
         () => AppleMapSize(width: 641, height: 400),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => AppleMapSize(width: 400, height: 49),
+        throwsA(isA<AssertionError>()),
+      );
+      expect(
+        () => AppleMapSize(width: 400, height: 641),
         throwsA(isA<AssertionError>()),
       );
       expect(
@@ -271,8 +273,8 @@ void main() {
         imgIdx: 2,
       );
 
-      expect(annotation.query, contains('"glyphImgIdx": 1'));
-      expect(annotation.query, contains('"imgIdx": 2'));
+      expect(annotation.query, contains('"glyphImgIdx":1'));
+      expect(annotation.query, contains('"imgIdx":2'));
     });
 
     test('queryParameters covers all optional fields', () {
@@ -291,8 +293,128 @@ void main() {
       expect(params['colorScheme'], 'dark');
       expect(params['annotations'], isNotNull);
       expect(params['overlays'], isNotNull);
-      expect(params['images'], isNotNull);
+      expect(params['imgs'], isNotNull);
       expect(params['signature'], 'signature');
+    });
+  });
+
+  group('A group of specification compliance', () {
+    const teamId = 'team_id';
+    const keyId = 'key_id';
+    final tokyoStation = MapLatLng(latitude: 35.6812, longitude: 139.7671);
+
+    test('zoom uses the "z" parameter name', () {
+      final service = AppleMapService(
+        teamId: teamId,
+        keyId: keyId,
+        signatureFunction: (u) => 's',
+        center: tokyoStation,
+        zoom: 15,
+      );
+
+      expect(service.queryParameters, containsPair('z', '15'));
+      expect(service.queryParameters.containsKey('zoom'), isFalse);
+    });
+
+    test('span uses the "spn" parameter name', () {
+      final service = AppleMapService(
+        teamId: teamId,
+        keyId: keyId,
+        signatureFunction: (u) => 's',
+        center: tokyoStation,
+        span: MapLatLng(latitude: 0.5, longitude: 0.25),
+      );
+
+      expect(service.queryParameters, containsPair('spn', '0.5,0.25'));
+      expect(service.queryParameters.containsKey('span'), isFalse);
+    });
+
+    test('images use the "imgs" parameter name', () {
+      final service = AppleMapService(
+        teamId: teamId,
+        keyId: keyId,
+        signatureFunction: (u) => 's',
+        center: tokyoStation,
+        images: {AppleMapImage(url: 'http://example.com/i.png')},
+      );
+
+      expect(service.queryParameters.containsKey('imgs'), isTrue);
+      expect(service.queryParameters.containsKey('images'), isFalse);
+    });
+
+    test('size separates width and height with "x"', () {
+      expect(AppleMapSize(width: 500, height: 300).query, '500x300');
+      expect(AppleMapSize.auto.query, '600x400');
+    });
+
+    test('annotations are valid JSON when values contain quotes', () {
+      final service = AppleMapService(
+        teamId: teamId,
+        keyId: keyId,
+        signatureFunction: (u) => 's',
+        center: tokyoStation,
+        annotations: {
+          AppleMapAnnotation(
+            point: const MapAddress('Joe"s Diner'),
+            glyphText: r'"}, "injected": "1',
+          ),
+        },
+      );
+
+      final decoded =
+          jsonDecode(service.queryParameters['annotations']!) as List<dynamic>;
+
+      expect(decoded, hasLength(1));
+      final annotation = decoded.single as Map<String, dynamic>;
+      expect(annotation['point'], 'Joe"s Diner');
+      expect(annotation['glyphText'], r'"}, "injected": "1');
+      expect(annotation.containsKey('injected'), isFalse);
+    });
+
+    test('overlays are valid JSON when values contain backslashes', () {
+      final service = AppleMapService(
+        teamId: teamId,
+        keyId: keyId,
+        signatureFunction: (u) => 's',
+        center: tokyoStation,
+        overlays: {AppleMapOverlay(points: r'a\b"c', strokeColor: r'#ff0000')},
+      );
+
+      final decoded =
+          jsonDecode(service.queryParameters['overlays']!) as List<dynamic>;
+      final overlay = decoded.single as Map<String, dynamic>;
+
+      expect(overlay['points'], r'a\b"c');
+      expect(overlay['strokeColor'], '#ff0000');
+    });
+
+    test('images are valid JSON when the url contains quotes', () {
+      final service = AppleMapService(
+        teamId: teamId,
+        keyId: keyId,
+        signatureFunction: (u) => 's',
+        center: tokyoStation,
+        images: {AppleMapImage(url: 'http://example.com/a"b.png', width: 32)},
+      );
+
+      final decoded =
+          jsonDecode(service.queryParameters['imgs']!) as List<dynamic>;
+      final image = decoded.single as Map<String, dynamic>;
+
+      expect(image['url'], 'http://example.com/a"b.png');
+      expect(image['width'], 32);
+    });
+
+    test('signature is the last query parameter', () {
+      final service = AppleMapService(
+        teamId: teamId,
+        keyId: keyId,
+        signatureFunction: (u) => 'sig',
+        center: tokyoStation,
+        expires: 1,
+      );
+
+      expect(service.url, endsWith('&signature=sig'));
     });
   });
 }

@@ -10,24 +10,45 @@ extension type const MapLocation(String query) {}
 /// - Latitude: clipped to [-90.0, 90.0]
 /// - Longitude: clipped to [-180.0, 180.0]
 ///
-/// The coordinates are formatted to 4 decimal places in the [query] string.
+/// The coordinates are formatted with up to 6 decimal places in the [query]
+/// string, which is the maximum precision the supported APIs make use of.
 extension type const MapLatLng._(String query) implements MapLocation {
   /// Creates a [MapLatLng] with the given [latitude] and [longitude].
   ///
   /// The values are automatically clipped to their respective valid ranges.
+  /// `NaN` is treated as `0`.
+  ///
+  /// Trailing zeros are omitted, so `35.6812` stays `35.6812` rather than
+  /// becoming `35.681200`.
   factory MapLatLng({required double latitude, required double longitude}) {
-    final lat = latitude < -90
-        ? -90
-        : latitude > 90
-        ? 90
-        : latitude;
-    final lng = longitude < -180
-        ? -180
-        : longitude > 180
-        ? 180
-        : longitude;
+    final lat = _clamp(latitude, -90, 90);
+    final lng = _clamp(longitude, -180, 180);
 
-    return MapLatLng._('${lat.toStringAsFixed(4)},${lng.toStringAsFixed(4)}');
+    return MapLatLng._('${_format(lat)},${_format(lng)}');
+  }
+
+  /// The maximum number of decimal places used when formatting coordinates.
+  static const _precision = 6;
+
+  static double _clamp(double value, double min, double max) {
+    if (value.isNaN) {
+      return 0;
+    }
+
+    return value < min
+        ? min
+        : value > max
+        ? max
+        : value;
+  }
+
+  static String _format(double value) {
+    final fixed = value.toStringAsFixed(_precision);
+    final trimmed = fixed.replaceFirst(RegExp(r'0+$'), '');
+
+    return trimmed.endsWith('.')
+        ? trimmed.substring(0, trimmed.length - 1)
+        : trimmed;
   }
 
   /// The latitude part of the coordinates.

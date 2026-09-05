@@ -418,8 +418,28 @@ void main() {
         contains('province'),
       );
       expect(
+        GoogleMapFeature.landscape(GoogleMapFeatureLandscape.none).query,
+        'feature:landscape',
+      );
+      expect(
         GoogleMapFeature.landscape(GoogleMapFeatureLandscape.manMade).query,
-        'feature:landscape:man_made',
+        'feature:landscape.man_made',
+      );
+      expect(
+        GoogleMapFeature.landscape(GoogleMapFeatureLandscape.natural).query,
+        'feature:landscape.natural',
+      );
+      expect(
+        GoogleMapFeature.landscape(
+          GoogleMapFeatureLandscape.naturalLandcover,
+        ).query,
+        'feature:landscape.natural.landcover',
+      );
+      expect(
+        GoogleMapFeature.landscape(
+          GoogleMapFeatureLandscape.naturalTerrain,
+        ).query,
+        'feature:landscape.natural.terrain',
       );
       expect(
         GoogleMapFeature.poi(GoogleMapFeaturePoi.school).query,

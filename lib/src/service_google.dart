@@ -355,10 +355,10 @@ enum GoogleMapFeatureAdministrative {
 /// Landscape feature types.
 enum GoogleMapFeatureLandscape {
   none('landscape'),
-  manMade('landscape:man_made'),
-  natural('landscape:natural'),
-  naturalLandcover('landscape:natural.landcover'),
-  naturalTerrain('landscape:natural.terrain');
+  manMade('landscape.man_made'),
+  natural('landscape.natural'),
+  naturalLandcover('landscape.natural.landcover'),
+  naturalTerrain('landscape.natural.terrain');
 
   const GoogleMapFeatureLandscape(this.value);
   final String value;
